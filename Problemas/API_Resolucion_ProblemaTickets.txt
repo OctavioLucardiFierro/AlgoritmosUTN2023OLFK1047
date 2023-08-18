@@ -1,0 +1,239 @@
+#include <iostream>
+#include "biblioteca/funciones/strings.hpp"
+#include "biblioteca/funciones/tokens.hpp"
+#include "biblioteca/funciones/files.hpp"
+#include "biblioteca/tads/Array.hpp"
+#include "biblioteca/tads/Map.hpp"
+#include "biblioteca/tads/List.hpp"
+#include "biblioteca/tads/Stack.hpp"
+#include "biblioteca/tads/Queue.hpp"
+#include "biblioteca/tads/Coll.hpp"
+#include "principal.hpp"
+using namespace std;
+
+Coll<RProducto> subirProductos()
+{
+   FILE * Productos = fopen("PRODUCTOS.dat","r+b"); //Abro el archivo
+   Coll<RProducto> rp = coll<RProducto>();          //Creo la coll
+   Producto elProd = read<Producto>(Productos);     //Leeo el Producto
+   RProducto reProd;                                //Creo un RProducto ya que esta struct tiene contador y un Producto
+   reProd.p = elProd;               //cargo los datos de c/u
+   reProd.cont=0;
+   while(!feof(Productos)){
+      collAdd<RProducto>(rp,reProd,rProductoToString); //lo subo a la coll
+      elProd = read<Producto>(Productos);                // busco un nuevo Producto
+      reProd.p = elProd;
+      reProd.cont=0;
+   }
+   fclose(Productos);
+   return rp;
+}
+
+Coll<Rubro> subirRubros()
+{
+   FILE * losRubros = fopen("RUBROS.dat","r+b");
+   Coll<Rubro> rub = coll<Rubro>();
+   Rubro elRubro = read<Rubro>(losRubros);
+   while(!feof(losRubros)){
+      collAdd<Rubro>(rub,elRubro,rubroToString);
+      elRubro = read<Rubro>(losRubros);
+   }
+   fclose(losRubros);
+   return rub;
+}
+
+int leerCliente()
+{
+   int id;
+   cout<<"Ingrese el Id del Cliente"<<endl;
+   cin>>id;
+   return id;
+}
+
+Par leerPar()
+{
+   Par prod;
+   cout<<"Ingrese el id del producto que lleva"<<endl;
+   cin>>prod.idPro;
+   cout<<"Ingrese la cantidad"<<endl;
+   cin>>prod.cant;
+
+   return prod;
+}
+
+int cmpRProductoId(RProducto r,int id)
+{
+   return r.p.idProd-id;
+}
+
+int cmpItemId(Item r,int id)
+{
+   return r.p.idProd-id;
+}
+int cmpRubroId(Rubro r, int id){
+   return r.idRub-id;
+}
+int cmpRRubroId(RRubro r, int id){
+   return r.r.idRub-id;
+}
+int cmpTicket(Item a, Item b){
+   string aDesc = a.p.descr;
+   string bDesc = b.p.descr;
+   return cmpString(aDesc, bDesc);
+}
+
+
+void procesarParPunto1(Par par,Coll<Item>& ticket,Coll<RProducto> cPro)
+{
+   //Busco el producto
+   int pos = collFind<RProducto>(cPro,par.idPro,cmpRProductoId,rProductoFromString);
+   RProducto rp = collGetAt<RProducto>(cPro,pos,rProductoFromString);                  //Obtengo el producto
+
+   pos = collFind<Item>(ticket,par.idPro,cmpItemId,itemFromString);                    //Descubro el tiket
+   if( pos<0 )                                                                         //Si entra al if es porque el producto no se encuentra en mi coleccion ticket
+   {
+      Item it = item(rp.p,0);                                           //el 0 es un acumulador, ya que se supone que es el primer producto con este id
+      pos = collAdd<Item>(ticket,it,itemToString);                      //agrego a la coll este elemento
+   }
+
+   Item x = collGetAt<Item>(ticket,pos,itemFromString);                 //obtengo el producto en el tiket la pos anterior
+   x.cant+=par.cant;                                                    //aumento la cantidad del producto encontrado
+   collSetAt<Item>(ticket,x,pos,itemToString);                          //agrego el porducto al ticket
+}
+
+void procesarParPunto2(Par par,Coll<RProducto>& cPro)
+{
+   int pos = collFind<RProducto>(cPro,int(par.idPro),cmpRProductoId,rProductoFromString);
+   RProducto rp = collGetAt<RProducto>(cPro,pos,rProductoFromString);
+   rp.cont+=par.cant;
+   collSetAt<RProducto>(cPro,rp,pos,rProductoToString);
+}
+
+void mostrarResultadosPunto1(int& nroTic,Coll<Item> ticket,Coll<Rubro> cRub)
+{
+   cout<<"Numero de ticket: "<< nroTic<<endl;
+   nroTic++;
+
+   Coll<RRubro> conDtoxRubro = coll<RRubro>();
+
+   double valorTotalCompra = 0;
+
+   //ordeno los items
+   collSort<Item>(ticket,cmpTicket,itemFromString,itemToString);
+
+   //itero los tickets
+   collReset<Item>(ticket);
+   while(collHasNext<Item>(ticket)){ //ATENCION A POSIBLE ERROR, ante cualquier error de que no muestra lo que se debe, revisar funcion
+      Item it = collNext<Item>(ticket,itemFromString);
+
+      //Primera parte del ticket
+      string descripcionItem = it.p.descr;
+      double precio = it.p.precio;
+
+      //Buscar el descyuento
+      int posi = collFind<Rubro>(cRub,it.p.idRub,cmpRubroId,rubroFromString);
+      Rubro r = collGetAt<Rubro>(cRub,posi,rubroFromString);
+
+      double descuento = r.promo;
+      double conDescuento = precio - (precio*descuento);
+
+      int cantidad = it.cant;
+
+      double total = conDescuento * cantidad; //Total de UN producto
+
+      cout<<descripcionItem << precio << conDescuento<< cantidad<< total<<endl;
+
+      valorTotalCompra += total;
+
+      //segunda parte
+
+      posi = collFind<RRubro>(conDtoxRubro,it.p.idRub,cmpRRubroId,rRubroFromString);                    //Descubro el tiket
+      if( posi<0 )                                                                         //Si entra al if es porque el producto no se encuentra en mi coleccion ticket
+      {
+         RRubro z = rRubro(r,0);
+         posi = collAdd<RRubro>(conDtoxRubro,z,rRubroToString);
+      }
+      RRubro p = collGetAt<RRubro>(conDtoxRubro,posi,rRubroFromString);
+      p.acum+= precio*descuento*cantidad; //dinero total descontado de este rubro
+      collSetAt<RRubro>(conDtoxRubro,p,posi,rRubroToString);
+   }
+
+
+   double descuentoTotFinal = 0;
+   collReset<RRubro>(conDtoxRubro);
+   while(collHasNext<RRubro>(conDtoxRubro)){
+      RRubro rubro = collNext<RRubro>(conDtoxRubro,rRubroFromString);
+      string sRubro = rubro.r.descr;
+      double totalDescuento = rubro.acum;
+
+      cout<< sRubro << totalDescuento <<endl;
+
+      descuentoTotFinal += totalDescuento;
+   }
+   cout<<descuentoTotFinal<<endl;
+  }
+int cmpRProducto(RProducto a, RProducto b){
+
+   return b.cont - a.cont;
+}
+
+void mostrarResultadosPunto2(Coll<RProducto> cPro,Coll<RRubro>& conDtoxRubro)
+{
+   //ORDENAMOS SEGUN L DEMAND
+   collSort<RProducto>(cPro, cmpRProducto,rProductoFromString,rProductoToString);
+
+   int i =0;
+
+   collReset<RRubro>(conDtoxRubro);
+   while(collHasNext<RProducto>(cPro)&&i <10){
+      RProducto x = collNext<RProducto>(cPro,rProductoFromString);
+
+      if(x.cont == 0){
+         break; //sale del while
+      }
+
+      string desc = x.p.descr;
+      cout<< desc << x.cont<<endl;
+      i++;
+   }
+
+}
+
+int pedirTicket(){
+   int nroTicket;
+   cout<<"Ingrese el numero de ticket"<<endl;
+   cin>>nroTicket;
+   return nroTicket;
+}
+int main()
+{
+   // subo archivos de consulta
+   Coll<RProducto> cPro = subirProductos();
+   Coll<Rubro> cRub = subirRubros();
+   Coll<RRubro>conDtoxRubro;
+
+   int nroTic = pedirTicket();
+   int idCli = leerCliente();
+   while( idCli!=0 )
+   {
+      Coll<Item> ticket = coll<Item>();
+
+      Par par = leerPar();
+      while( par.idPro!=0 )
+      {
+         // proceso el par
+         procesarParPunto1(par,ticket,cPro);
+         procesarParPunto2(par,cPro);
+
+         par = leerPar();
+      }
+
+      // resultados
+      mostrarResultadosPunto1(nroTic,ticket,cRub);
+      mostrarResultadosPunto2(cPro,conDtoxRubro);
+
+      idCli = leerCliente();
+   }
+
+       return 0;
+}

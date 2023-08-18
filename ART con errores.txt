@@ -1,0 +1,572 @@
+#include <iostream>
+#include "biblioteca/funciones/strings.hpp"
+#include "biblioteca/funciones/tokens.hpp"
+#include "biblioteca/funciones/files.hpp"
+#include "biblioteca/tads/Array.hpp"
+#include "biblioteca/tads/Map.hpp"
+#include "biblioteca/tads/List.hpp"
+#include "biblioteca/tads/Stack.hpp"
+#include "biblioteca/tads/Queue.hpp"
+#include "biblioteca/tads/Coll.hpp"
+#include "biblioteca/tads/Mtx.hpp"
+//#include "principal.hpp"
+#include "audiocuento.hpp"
+#include "imputacionHP.hpp"
+//#include "Pepe.hpp"
+using namespace std;
+
+Coll<REmpresa> subirEmpresas()
+{
+      FILE * archivoEmpre = fopen("EMPRESAS.dat","r+b"); //Abro el archivo
+      Coll<REmpresa> rp = coll<REmpresa>();                       //Creo la coll
+
+      Empresa laEmpresaLeida = read<Empresa>(archivoEmpre);
+      while(!feof(archivoEmpre)){
+         REmpresa rEmpresa;                                //Creo un RProducto ya que esta struct tiene contador y un Producto
+         rEmpresa.e = laEmpresaLeida;
+         rEmpresa.cont=0;
+         rEmpresa.porcentajeReajuste = 0;
+         rEmpresa.ausentismo = coll<X>('#');
+         collAdd<REmpresa>(rp,rEmpresa,rEmpresaToString); //lo subo a la coll
+         laEmpresaLeida = read<Empresa>(archivoEmpre);    // busco un nuevo Producto
+      }
+      fclose(archivoEmpre);
+      return rp;
+//   FILE * archivoEmpre = fopen("EMPRESAS.dat","r+b"); //Abro el archivo
+//   Coll<REmpresa> rp = coll<REmpresa>();                       //Creo la coll
+//   Empresa laEmpresaLeida = read<Empresa>(archivoEmpre);     //Leeo el Producto
+//   REmpresa rEmpresa;                                //Creo un RProducto ya que esta struct tiene contador y un Producto
+//
+//   rEmpresa.e = laEmpresaLeida;                      //cargo los datos de c/u
+//   rEmpresa.cont =0;
+//   rEmpresa.porcentajeReajuste = 0;
+//   rEmpresa.ausentismo = coll<X>('#');
+//
+//   while(!feof(archivoEmpre)){
+//      collAdd<REmpresa>(rp,rEmpresa,rEmpresaToString); //lo subo a la coll
+//      laEmpresaLeida = read<Empresa>(archivoEmpre);    // busco un nuevo Producto
+//      rEmpresa.e = laEmpresaLeida;
+//      rEmpresa.cont=0;
+//      rEmpresa.porcentajeReajuste = 0;
+//      rEmpresa.ausentismo = coll<X>();
+//   }
+//   fclose(archivoEmpre);
+//   return rp;
+}
+
+
+//Coll<RAccidente> subirAccidente(Coll<REmpresa> cEmpre){
+//      FILE * archiAcci = fopen("ACCIDENTES.dat","r+b"); //Abro el archivo
+//      Coll<RAccidente> rp = coll<RAccidente>();          //Creo la coll
+//      Accidente acciLeido = read<Accidente>(archiAcci);     //Leeo el Producto
+//      RAccidente rAcci;                                //Creo un RProducto ya que esta struct tiene contador y un Producto
+//      rAcci.a = acciLeido;                      //cargo los datos de c/u
+//      rAcci.contador = 0;
+//
+//      while(!feof(archiAcci)){
+//         collAdd<RAccidente>(rp,rAcci,rAccidenteToString); //lo subo a la coll
+//         acciLeido = read<Accidente>(archiAcci);            // busco un nuevo Producto
+//         rAcci.a = acciLeido;
+//         rAcci.contador = 0;
+//
+//      }
+//
+//      fclose(archiAcci);
+//      return rp;
+//}
+
+double porcentaje(int cantTrabajadores,int cantAccidentes){
+
+   double porcentaje = (cantAccidentes / cantTrabajadores) * 100;
+   return porcentaje;
+}
+
+//Recorro la coll de Accidentes, con el idEmpresa busco la empresa en cEmpre y aumento el cont
+void cargarAccidentesAlContadorEmpresas(Coll<REmpresa>cEmpre, Coll<RAccidente> cAcci){
+
+
+
+}
+
+void calcularPorcentajeDeEmpresas(Coll<REmpresa> cEmpre){
+   int cantEmpresas = collSize(cEmpre); //cantidad de empresas
+   int i = 0;
+
+   while(i < cantEmpresas){
+         REmpresa empresaActual = collGetAt<REmpresa>(cEmpre,i,rEmpresaFromString);
+
+         int cantTrabajTot = empresaActual.e.cantTrabAsegurados;
+         int cantAcciTot   = empresaActual.cont;
+
+         double porceEmpresa = porcentaje(cantTrabajTot,cantAcciTot);
+
+         empresaActual.porcentajeReajuste = porceEmpresa;
+         i++;
+      }
+}
+
+void mostrarResultadosPunto1(Coll<REmpresa> cEmpre){
+   int cantEmpresas = collSize(cEmpre); //cantidad de empresas
+      int i = 0;
+
+      while(i < cantEmpresas){
+            REmpresa empresaActual = collGetAt<REmpresa>(cEmpre,i,rEmpresaFromString);
+            string x = empresaActual.e.razonSocial;
+            cout<< x <<endl;
+            cout<<empresaActual.porcentajeReajuste<<endl;
+
+            i++;
+         }
+}
+int cmpREmpresa(REmpresa a, REmpresa b){
+   return cmpDouble(a.porcentajeReajuste, b.porcentajeReajuste);
+}
+
+void ordenarEmpresas(Coll<REmpresa>& cEmpre){
+   collSort<REmpresa>(cEmpre,cmpREmpresa,rEmpresaFromString,rEmpresaToString);
+}
+
+void mostrarResultadosPunto2(){
+
+}
+
+int main(){
+
+   Coll<REmpresa> cEmpre = subirEmpresas();
+   Coll<RAccidente> cAcci = subirAccidente(cEmpre); // no va
+
+   //CargarAccidentes totales a las empresas
+   cargarAccidentesAlContadorEmpresas(cEmpre, cAcci);
+
+   //Calculo los porcentajes de cada empresa
+   calcularPorcentajeDeEmpresas(cEmpre);
+
+   mostrarResultadosPunto1(cEmpre);
+
+   //Ordenar cEmpre con collSort en base al porsentaje
+   ordenarEmpresas(cEmpre);
+
+   //Muestro los datos correspondientes de los accidentes de la pos 0 de cEmpre
+   mostrarResultadosPunto2();
+
+   return 0;
+}
+
+//           Coll<string> collection = coll<string>();
+//           collection.token = "Star|Wars|Nueva|Esperanza";
+//           collAdd<string>(collection,"Lucas",stringToString);
+//           collAdd<string>(collection,"1977",stringToString);
+//           string fill = "Filloni";
+//           collSetAt(collection,fill , 4, stringToString);
+//
+//           cout<<collection.token<<endl;
+//           bool iterador = false;
+//           while(!iterador){
+//              string v = collNext<string>(collection,iterador,stringToString);
+//              cout<<v<<endl;
+//           }
+//           collReset<string>(collection);
+//           string busco = "Esperanza";
+//           int result = collFind(collection, string(busco), cmpString, stringToString);
+//           if (result >= 0) {
+//              cout << "contiene: " << busco << endl;
+//           } else {
+//              cout << "No lo contiene" << endl;
+//           }
+//           collSort(collection,cmpString, stringToString,stringToString);
+//
+//           cout<<collection.token<<endl;
+//
+//           FILE* f = fopen("JUAN.x","w+b");
+//           write<short>(f,1234);
+//           write<short>(f,4321);
+//           write<short>(f,-9876);
+//           write<short>(f,231);
+//           write<short>(f,3123);
+//           write<short>(f,34);
+//
+//           fclose(f);
+
+//          FILE* f = fopen("JUAN.x","r+b");
+//           seek<short>(f,0);
+//
+//
+//           for( int i=fileSize<short>(f)-1; i>=0; i-- )
+//           {
+//            seek<short>(f,i);
+//            // numero de registro apuntado por el indicador de posicion
+//            int pos = filePos<short>(f);
+//            short s = read<short>(f);
+//            cout << "Registro Nro. " << pos << "," << s << endl;
+//           }
+//           cout<<"En el archivo hay: "<<fileSize<short>(f)<<" Elementos"<<endl;
+//           fclose(f);
+//#endif
+
+
+---------------------------------------------------------------------------------------------
+
+
+#ifndef _MAINHPPx
+#define _MAINHPPx
+#include <iostream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <string.h>
+#include <stdlib.h>
+#include "biblioteca/funciones/strings.hpp"
+#include "biblioteca/funciones/tokens.hpp"
+#include "biblioteca/tads/Coll.hpp"
+using namespace std;
+
+struct Empresa
+{
+   int idEmpresa;
+   char razonSocial[100];
+   int cantTrabAsegurados;
+};
+
+struct Fecha
+{
+   int dia;
+   int mes;
+   int ano;
+};
+
+struct Accidente
+{
+   int idEmpresa;
+   int legajo;
+   Fecha fecha;
+   int cantDiasLicencia;
+};
+
+struct REmpresa
+{
+   Empresa e;
+   int cont; // cant accidentes denunciados
+};
+
+struct RAccidente
+{
+   Accidente a;
+   int contador;
+};
+
+string empresaToString(Empresa x)
+{
+   char sep = 1;
+   string sIdEmpresa=to_string(x.idEmpresa);
+   string sRazonSocial=x.razonSocial;
+   string sCantTrabAsegurados=to_string(x.cantTrabAsegurados);
+   return sIdEmpresa+sep+sRazonSocial+sep+sCantTrabAsegurados;
+}
+
+Empresa empresaFromString(string s)
+{
+   char sep = 1;
+   Empresa x;
+   string t0 = getTokenAt(s,sep,0);
+   x.idEmpresa=stoi(t0);
+   string t1 = getTokenAt(s,sep,1);
+   strcpy(x.razonSocial,t1.c_str());
+   string t2 = getTokenAt(s,sep,2);
+   x.cantTrabAsegurados=stoi(t2);
+   return x;
+}
+
+string empresaToDebug(Empresa x)
+{
+   stringstream sout;
+   sout<< "[";
+   sout << x.idEmpresa;
+   sout << ",";
+   sout << x.razonSocial;
+   sout << ",";
+   sout << x.cantTrabAsegurados;
+   sout<< "]";
+   return sout.str();
+}
+
+string empresaToDebug(string mssg,Empresa x)
+{
+   stringstream sout;
+   sout<< mssg<<":[";
+   sout << x.idEmpresa;
+   sout << ",";
+   sout << x.razonSocial;
+   sout << ",";
+   sout << x.cantTrabAsegurados;
+   sout<< "]";
+   return sout.str();
+}
+
+Empresa empresa(int idEmpresa,string razonSocial,int cantTrabAsegurados)
+{
+   Empresa a;
+   a.idEmpresa = idEmpresa;
+   strcpy(a.razonSocial,razonSocial.c_str());
+   a.cantTrabAsegurados = cantTrabAsegurados;
+   return a;
+}
+
+bool empresaEquals(Empresa a,Empresa b)
+{
+   if(a.idEmpresa!=b.idEmpresa) return false;
+   if(a.cantTrabAsegurados!=b.cantTrabAsegurados) return false;
+   return true;
+}
+
+string fechaToString(Fecha x)
+{
+   char sep = 2;
+   string sDia=to_string(x.dia);
+   string sMes=to_string(x.mes);
+   string sAno=to_string(x.ano);
+   return sDia+sep+sMes+sep+sAno;
+}
+
+Fecha fechaFromString(string s)
+{
+   char sep = 2;
+   Fecha x;
+   string t0 = getTokenAt(s,sep,0);
+   x.dia=stoi(t0);
+   string t1 = getTokenAt(s,sep,1);
+   x.mes=stoi(t1);
+   string t2 = getTokenAt(s,sep,2);
+   x.ano=stoi(t2);
+   return x;
+}
+
+string fechaToDebug(Fecha x)
+{
+   stringstream sout;
+   sout<< "[";
+   sout << x.dia;
+   sout << ",";
+   sout << x.mes;
+   sout << ",";
+   sout << x.ano;
+   sout<< "]";
+   return sout.str();
+}
+
+string fechaToDebug(string mssg,Fecha x)
+{
+   stringstream sout;
+   sout<< mssg<<":[";
+   sout << x.dia;
+   sout << ",";
+   sout << x.mes;
+   sout << ",";
+   sout << x.ano;
+   sout<< "]";
+   return sout.str();
+}
+
+Fecha fecha(int dia,int mes,int ano)
+{
+   Fecha b;
+   b.dia = dia;
+   b.mes = mes;
+   b.ano = ano;
+   return b;
+}
+
+bool fechaEquals(Fecha a,Fecha b)
+{
+   if(a.dia!=b.dia) return false;
+   if(a.mes!=b.mes) return false;
+   if(a.ano!=b.ano) return false;
+   return true;
+}
+
+string accidenteToString(Accidente x)
+{
+   char sep = 3;
+   string sIdEmpresa=to_string(x.idEmpresa);
+   string sLegajo=to_string(x.legajo);
+   string sFecha=fechaToString(x.fecha);
+   string sCantDiasLicencia=to_string(x.cantDiasLicencia);
+   return sIdEmpresa+sep+sLegajo+sep+sFecha+sep+sCantDiasLicencia;
+}
+
+Accidente accidenteFromString(string s)
+{
+   char sep = 3;
+   Accidente x;
+   string t0 = getTokenAt(s,sep,0);
+   x.idEmpresa=stoi(t0);
+   string t1 = getTokenAt(s,sep,1);
+   x.legajo=stoi(t1);
+   string t2 = getTokenAt(s,sep,2);
+   x.fecha=fechaFromString(t2);
+   string t3 = getTokenAt(s,sep,3);
+   x.cantDiasLicencia=stoi(t3);
+   return x;
+}
+
+string accidenteToDebug(Accidente x)
+{
+   stringstream sout;
+   sout<< "[";
+   sout << x.idEmpresa;
+   sout << ",";
+   sout << x.legajo;
+   sout << ",";
+   sout << fechaToDebug(x.fecha);
+   sout << ",";
+   sout << x.cantDiasLicencia;
+   sout<< "]";
+   return sout.str();
+}
+
+string accidenteToDebug(string mssg,Accidente x)
+{
+   stringstream sout;
+   sout<< mssg<<":[";
+   sout << x.idEmpresa;
+   sout << ",";
+   sout << x.legajo;
+   sout << ",";
+   sout << fechaToDebug(x.fecha);
+   sout << ",";
+   sout << x.cantDiasLicencia;
+   sout<< "]";
+   return sout.str();
+}
+
+Accidente accidente(int idEmpresa,int legajo,Fecha fecha,int cantDiasLicencia)
+{
+   Accidente a;
+   a.idEmpresa = idEmpresa;
+   a.legajo = legajo;
+   a.fecha = fecha;
+   a.cantDiasLicencia = cantDiasLicencia;
+   return a;
+}
+
+bool accidenteEquals(Accidente a,Accidente b)
+{
+   if(a.idEmpresa!=b.idEmpresa) return false;
+   if(a.legajo!=b.legajo) return false;
+   if(!fechaEquals(a.fecha,b.fecha)) return false;
+   if(a.cantDiasLicencia!=b.cantDiasLicencia) return false;
+   return true;
+}
+
+string rEmpresaToString(REmpresa x)
+{
+   char sep = 4;
+   string sE=empresaToString(x.e);
+   string sCont=to_string(x.cont);
+   return sE+sep+sCont;
+}
+
+REmpresa rEmpresaFromString(string s)
+{
+   char sep = 4;
+   REmpresa x;
+   string t0 = getTokenAt(s,sep,0);
+   x.e=empresaFromString(t0);
+   string t1 = getTokenAt(s,sep,1);
+   x.cont=stoi(t1);
+   return x;
+}
+
+string rEmpresaToDebug(REmpresa x)
+{
+   stringstream sout;
+   sout<< "[";
+   sout << empresaToDebug(x.e);
+   sout << ",";
+   sout << x.cont;
+   sout<< "]";
+   return sout.str();
+}
+
+string rEmpresaToDebug(string mssg,REmpresa x)
+{
+   stringstream sout;
+   sout<< mssg<<":[";
+   sout << empresaToDebug(x.e);
+   sout << ",";
+   sout << x.cont;
+   sout<< "]";
+   return sout.str();
+}
+
+REmpresa rEmpresa(Empresa e,int cont)
+{
+   REmpresa a;
+   a.e = e;
+   a.cont = cont;
+   return a;
+}
+
+bool rEmpresaEquals(REmpresa a,REmpresa b)
+{
+   if(!empresaEquals(a.e,b.e)) return false;
+   if(a.cont!=b.cont) return false;
+   return true;
+}
+
+string rAccidenteToString(RAccidente x)
+{
+   char sep = 5;
+   string sA=accidenteToString(x.a);
+   string sContador=to_string(x.contador);
+   return sA+sep+sContador;
+}
+
+RAccidente rAccidenteFromString(string s)
+{
+   char sep = 5;
+   RAccidente x;
+   string t0 = getTokenAt(s,sep,0);
+   x.a=accidenteFromString(t0);
+   string t1 = getTokenAt(s,sep,1);
+   x.contador=stoi(t1);
+   return x;
+}
+
+string rAccidenteToDebug(RAccidente x)
+{
+   stringstream sout;
+   sout<< "[";
+   sout << accidenteToDebug(x.a);
+   sout << ",";
+   sout << x.contador;
+   sout<< "]";
+   return sout.str();
+}
+
+string rAccidenteToDebug(string mssg,RAccidente x)
+{
+   stringstream sout;
+   sout<< mssg<<":[";
+   sout << accidenteToDebug(x.a);
+   sout << ",";
+   sout << x.contador;
+   sout<< "]";
+   return sout.str();
+}
+
+RAccidente rAccidente(Accidente a,int contador)
+{
+   RAccidente b;
+   b.a = a;
+   b.contador = contador;
+   return b;
+}
+
+bool rAccidenteEquals(RAccidente a,RAccidente b)
+{
+   if(!accidenteEquals(a.a,b.a)) return false;
+   if(a.contador!=b.contador) return false;
+   return true;
+}
+
+#endif

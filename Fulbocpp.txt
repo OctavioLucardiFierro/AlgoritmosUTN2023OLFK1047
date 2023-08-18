@@ -1,0 +1,131 @@
+#include <iostream>
+#include "biblioteca/funciones/strings.hpp"
+#include "biblioteca/funciones/tokens.hpp"
+#include "biblioteca/funciones/files.hpp"
+#include "biblioteca/tads/Array.hpp"
+#include "biblioteca/tads/Map.hpp"
+#include "biblioteca/tads/List.hpp"
+#include "biblioteca/tads/Stack.hpp"
+#include "biblioteca/tads/Queue.hpp"
+#include "biblioteca/tads/Coll.hpp"
+#include "biblioteca/tads/Mtx.hpp"
+//#include "principal.hpp"
+//#include "audiocuento.hpp"
+#include "imputacionHP.hpp"
+#include "Pepe.hpp"
+#include "fulbo.hpp"
+using namespace std;
+
+Coll<REquipo> subirEquipo(){
+   FILE* f = fopen("EQUIPOS.dat","r+b");
+   Coll<REquipo> cEq = coll<REquipo>();
+   REquipo reE;
+
+   while(!feof(f)){
+      Equipo equi = read<Equipo>(f);
+      reE.e = equi;
+      reE.puntosNuevos = 0;
+      collAdd(cEq,reE,rEquipoToString);
+   }
+   fclose(f);
+   return cEq;
+}
+
+int cmpID(REquipo idEquipo, int r){
+   return idEquipo.e.idEq - r;
+}
+
+
+//recorro el archivo de resultados, veo que valor tiene codeRes y sumo puntos en los
+//equipos correspondiente
+void procesarPunto1(Coll<REquipo> cEq){
+   FILE* f = fopen("RESULTADOS.dat","r+b");
+   Resultado r = read<Resultado>(f);
+
+   while(!feof(f)){
+      if(r.codRes<0 && r.codRes != 0){ // idEquipo 1 +3puntos
+         int idEquipo1 = r.idEq1;
+         int p = collFind(cEq,idEquipo1,cmpID,rEquipoFromString);
+         REquipo req = collGetAt(cEq,p,rEquipoFromString);
+         req.puntosNuevos+=3;
+      }
+      if(r.codRes>0 && r.codRes != 0){ // idEquipo 2 +3puntos
+         int idEquipo2 = r.idEq2;
+         int p = collFind(cEq,idEquipo2,cmpID,rEquipoFromString);
+         REquipo req = collGetAt(cEq,p,rEquipoFromString);
+         req.puntosNuevos+=3;
+      }
+      r = read<Resultado>(f);
+   }
+   fclose(f);
+}
+
+int cmpEstadio(Estadio e, string estadio){
+   return cmpString(e.estadio,estadio);
+}
+
+
+Coll<Estadio> procesarPunto2(){
+   Coll<Estadio> est = coll<Estadio>();
+   FILE* f = fopen("RESULTADOS.dat","r+b");
+   Resultado r = read<Resultado>(f);
+
+   while(!feof(f)){
+      string e = r.estadio;
+      Estadio es;
+
+      int estaOno = collFind(est,e,cmpEstadio,estadioFromString);
+
+      if(estaOno<0){ //Descubro el estadio
+         es.partidosT++;
+         if(r.codRes==0){
+            es.empates++;
+         }
+         collAdd(est,es,estadioToString);
+      }
+      if(estaOno>=0){ //al ya existir en la coll, estaOno es su pos
+         Estadio exEst = collGetAt(est,estaOno,estadioFromString);
+         exEst.partidosT++;
+         if(r.codRes==0){
+            exEst.empates++;
+         }
+      }
+   }
+   fclose(f);
+   return est;
+}
+
+void procesarPunto3(Coll <REquipo> cEq){
+   FILE* f = fopen("EQUIPOS.dat","w+b");
+   Equipo e;
+   collReset<REquipo>(cEq);
+
+   REquipo re;
+   while(collHasNext(cEq)){
+      re = collNext<REquipo>(cEq, rEquipoFromString);
+      e=re.e;
+      e.puntos += re.puntosNuevos;
+      write<Equipo>(f,e);
+   }
+   fclose(f);
+}
+
+
+int main (){
+
+   Coll<REquipo> cEq = subirEquipo();
+
+   //recorro el archivo de resultados, veo que valor tiene codeRes y sumo puntos en los
+   //equipos correspondiente
+   procesarPunto1(cEq);
+
+   procesarPunto2();
+
+   //Recorrer la coll de equipos y subir la coll
+   //Actualizada a un archivo
+   procesarPunto3(cEq);
+
+
+   mostrarResultados1(cEq);
+   return 0;
+}

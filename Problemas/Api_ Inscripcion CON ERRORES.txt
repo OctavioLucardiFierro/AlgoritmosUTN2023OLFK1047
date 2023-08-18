@@ -1,0 +1,123 @@
+#include <iostream>
+#include "biblioteca/funciones/strings.hpp"
+#include "biblioteca/funciones/tokens.hpp"
+#include "biblioteca/funciones/files.hpp"
+#include "biblioteca/tads/Array.hpp"
+#include "biblioteca/tads/Map.hpp"
+#include "biblioteca/tads/List.hpp"
+#include "biblioteca/tads/Stack.hpp"
+#include "biblioteca/tads/Queue.hpp"
+#include "biblioteca/tads/Coll.hpp"
+//#include "principal.hpp"
+#include "inscripcion.hpp"
+using namespace std;
+
+Coll<RCurso> subirCursos()
+{
+   FILE * f = fopen("CURSOS.dat","r+b");
+   Coll<RCurso> cursos = coll<RCurso>();
+   Curso elCurso = read<Curso>(f);
+   while( !feof(f) )
+   {
+      RCurso x = rCurso(elCurso,0);
+      collAdd<RCurso>(cursos,x,rCursoToString);
+      elCurso = read<Curso>(f);
+   }
+   fclose(f);
+   return cursos;
+   return{};
+}
+
+void procesarInscripcionPunto1(Inscripcion i, Coll<RCurso>& cCur, Coll<RAlumno>& cAlu)
+{
+   RAlumno alumnoIn = collGetAt<RAlumno>(cAlu,i.idAlu,rAlumnoFromString);
+   RCurso cursoIn = collFind(cCur,i.idCur,rCursoFromString);
+   if( cursoIn.cia<cursoIn.c.cap )
+   {
+      cursoIn.cia++;
+   }
+   else
+   {
+      collAdd<RAlumno>(alumnoIn.materias,cursoIn.c.materia,rAlumnoToString);//
+   }
+}
+
+void resultadosPunto1(Coll<RAlumno> cAlu)
+{
+   collReset(cAlu);
+
+   while(collHasNext(cAlu)){
+      RAlumno alu = collNext<RAlumno>(cAlu, rAlumnoFromString);
+      cout<<alu.materias<<endl;
+   }
+}
+
+void procesarPunto2(Coll<RCurso> cCur, Coll<RMateria>& cMat)
+{
+   collReset(cCur);
+   while( collHasNext(cCur) )
+   {
+      RCurso cur = collNext<RCurso>(cCur,rCursoFromString);
+      if( cur.cia<cur.c.cap )
+      {
+         RMateria x = (cur.c.materia,cur.c.idCur); // Mal
+         int idMate = (cur.c.idCur);
+         collAdd<RMateria>(cMat,x,rMateriaToString);
+      }
+   }
+}
+
+void resultadosPunto2(Coll<RMateria> cMat)
+{
+}
+
+void procesarPunto3(Coll<RAlumno>& cAlu, Coll<RMateria>& cMat, Coll<RCurso>& cCur)
+{
+}
+
+void procesarPunto4(Coll<RAlumno> cAlu)
+{
+}
+
+int main()
+{
+   Coll<RCurso> cCur = subirCursos();
+   Coll<RAlumno> cAlu = coll<RAlumno>();
+   Coll<RMateria> cMat = coll<RMateria>();
+
+   FILE* f = fopen("INSCRIPCIONES.dat","r+b");
+
+   Inscripcion i = read<Inscripcion>(f);
+   while( !feof(f) )
+   {
+      // verificar si hay disp. en el curso.
+      // si hay => incremento cia,
+      // si no hay => descubro el alumno y le agrego la materia rechazada
+      procesarInscripcionPunto1(i,cCur,cAlu);
+      i = read<Inscripcion>(f);
+   }
+
+   resultadosPunto1(cAlu);
+
+   // recorro cCur, y por cada curso verificar si tiene disp.
+   // si tiene cupo => descubro la materia en cMat y le agrego el idCur
+   procesarPunto2(cCur,cMat);
+   resultadosPunto2(cMat);
+
+   // ordeno cAlu
+   // recorro cAlu, por c/u recorro sus materias a reasignar.
+   // por c/materia busco en cMat el primer curso con cupo (si lo hay)
+   // Si no hay, ignoro esta materia de este alumno y paso a la siguiente.
+   // Si si hay, grabo una fila en REASIGNACION.dat, incremento el cia del curso
+   // si el cia quedo igual a la cap => remuevo el curso de la cMat
+   // Si reasigne la materia => la remuevo de la lista de materias del alumno
+   procesarPunto3(cAlu,cMat,cCur);
+
+   // recorro cAlu, y por cada alumno, recorro su lista de materias.
+   // por cada materia grabo en RIVISION.dat
+   procesarPunto4(cAlu);
+
+   fclose(f);
+
+   return 0;
+}

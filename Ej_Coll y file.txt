@@ -1,0 +1,50 @@
+ Coll<string> collection = coll<string>();
+    collection.token = "Star|Wars|Nueva|Esperanza";
+    collAdd<string>(collection,"Lucas",stringToString);
+    collAdd<string>(collection,"1977",stringToString);
+    string fill = "Filloni";
+    collSetAt(collection,fill , 4, stringToString);
+
+    cout<<collection.token<<endl;
+    bool iterador = false;
+    while(!iterador){
+       string v = collNext<string>(collection,iterador,stringToString);
+       cout<<v<<endl;
+    }
+    collReset<string>(collection);
+    string busco = "Esperanza";
+    int result = collFind(collection, string(busco), cmpString, stringToString);
+    if (result >= 0) {
+       cout << "contiene: " << busco << endl;
+    } else {
+       cout << "No lo contiene" << endl;
+    }
+    collSort(collection,cmpString, stringToString,stringToString);
+
+    cout<<collection.token<<endl;
+
+    FILE* f = fopen("JUAN.x","w+b");
+    write<short>(f,1234);
+    write<short>(f,4321);
+    write<short>(f,-9876);
+    write<short>(f,231);
+    write<short>(f,3123);
+    write<short>(f,9312);
+
+    fclose(f);
+
+   FILE* f = fopen("JUAN.x","r+b");
+    seek<short>(f,0);
+
+
+    for( int i=fileSize<short>(f)-1; i>=0; i-- )
+    {
+     seek<short>(f,i);
+     // numero de registro apuntado por el indicador de posicion
+     int pos = filePos<short>(f);
+     short s = read<short>(f);
+     cout << "Registro Nro. " << pos << "," << s << endl;
+    }
+    cout<<"En el archivo hay: "<<fileSize<short>(f)<<" Elementos"<<endl;
+    fclose(f); */
+//#endif

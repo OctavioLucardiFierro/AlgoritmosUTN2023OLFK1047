@@ -1,0 +1,158 @@
+#include <iostream>
+#include "biblioteca/funciones/strings.hpp"
+#include "biblioteca/funciones/tokens.hpp"
+#include "biblioteca/funciones/files.hpp"
+#include "biblioteca/tads/Array.hpp"
+#include "biblioteca/tads/Map.hpp"
+#include "biblioteca/tads/List.hpp"
+#include "biblioteca/tads/Stack.hpp"
+#include "biblioteca/tads/Queue.hpp"
+#include "biblioteca/tads/Coll.hpp"
+//#include "principal.hpp"
+#include "audiocuento.hpp"
+using namespace std;
+
+//Coll<RRelator> subirArchivoRelator()
+//{
+//   FILE * f = fopen("RELATORES.dat","r+b");
+//   Coll<RRelator> rela = coll<RRelator>();
+//   Relator elRela = read<Relator>(f);
+//
+//   while( !feof(f) )
+//   {
+//      RRelator x = rRelator(elRela,0);
+//      collAdd<RRelator>(rela,x,rRelatorToString);
+//      elRela = read<Relator>(f);
+//   }
+//
+//   fclose(f);
+//   return rela;
+//}
+//
+//Coll<RCuento> subirArchivoCuentos()
+//{
+//   FILE * f = fopen("CUENTOS.dat","r+b");
+//   Coll<RCuento> cuentos = coll<RCuento>();
+//   Cuento elCuento = read<Cuento>(f);
+//   RCuento cuent;
+//
+//   while( !feof(f) )
+//   {
+//      cuent.c = elCuento;
+//      collAdd<RCuento>(cuentos,cuent,rCuentoToString);
+//      elCuento = read<RCuento>(f);
+//   }
+//
+//   fclose(f);
+//   return cuentos;
+//
+//}
+//int cmpRCuentoId(RCuento c, int id)
+//{
+//   return c.c.idLibro - id;
+//}
+//int calcularPorcentaje(int dura, int minutos){
+//   float porcetaje = minutos/dura;
+//   if( porcetaje==1 )
+//   {
+//      return 100;
+//   }
+//   if( porcetaje<1&&porcetaje>=0.75 )
+//   {
+//      return 75;
+//   }
+//   if( porcetaje<0.75&&porcetaje>=0.50 )
+//   {
+//      return 50;
+//   }
+//   if( porcetaje<0.50&&porcetaje>=0.25 )
+//   {
+//      return 25;
+//   }
+//   if( porcetaje<0.25&&porcetaje>0 )
+//   {
+//      return 0;
+//   }
+//   return -1;
+//}
+////Busco el cuento calculo el % y aumento contador correspondiente
+//void procesarPunto1(Reproduccion i, Coll<RCuento>& cCuen)
+//{
+//
+//   int posicion = collFind<RCuento, int>(cCuen,i.idLibro,cmpRCuentoId,rCuentoFromString);
+//   RCuento x = collGetAt<RCuento>(cCuen,posicion,rCuentoFromString);
+//
+//   int porc = calcularPorcentaje(x.c.duracion,i.minutos);
+//
+//   switch(porc)
+//      {
+//         case 100:
+//            x.completas++;
+//            break;
+//
+//         case 75:
+//            x.casiCompleta++;
+//            break;
+//         case 50:
+//            x.masDeLamitad++;
+//            break;
+//         case 25:
+//            x.menosDeLaMitad++;
+//            break;
+//         case 0:
+//            x.porElPrincipio++;
+//            break;
+//   }
+//
+//
+//   collSetAt<RCuento>(cCuen,x,posicion,rCuentoToString);
+//
+//
+//
+//}
+//void procesarPunto2(Reproduccion i, Coll<RRelator>& rRelatorcito, Coll<RCuento>& cCuen)
+//{
+//
+//}
+//void mostrarResultadosPunto1(Coll<RCuento> cCuen)
+//{
+//
+//}
+//void mostrarResultadosPunto2(Coll<RRelator> rRelatorcito)
+//{
+//
+//}
+
+int main()
+{
+//
+//   Coll<RRelator> cRela = subirArchivoRelator();
+//   Coll<RCuento> cCuento = subirArchivoCuentos();
+//   FILE * f = fopen("REPRODUCCIONES.dat","r+b");
+//
+//   	Reproduccion i = read<Reproduccion>(f);
+//
+//   while( !feof(f) )
+//   {
+//      //Busco el cuento calculo el % y aumento contador correspondiente
+//      procesarPunto1(i,cCuento);
+//
+//      // Bucar el cuento de la reproduccion, y si esta dentro del % 75-100 aumento el contador del relator
+//      procesarPunto2(i,cRela,cCuento);
+//      i = read<Reproduccion>(f);
+//   }
+//   //Ordeno de mayor a menor segun %
+//   mostrarResultadosPunto1(cCuento);
+//
+//   // Ordeno de mayor a menor a los primeros 10 que tengan mas repro de 75-100
+//   mostrarResultadosPunto2(cRela);
+//   fclose(f);
+
+
+   for(int i = 0; i<10 ;i++){
+      if(i%3 == 0){
+         cout<<i<<" es divisor"<<endl;
+      }
+   }
+   return 0;
+}

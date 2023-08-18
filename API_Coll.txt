@@ -1,0 +1,159 @@
+#ifndef _TCOLL_T_
+#define _TCOLL_T_
+
+#include <iostream>
+#include "../funciones/strings.hpp"
+#include "../funciones/tokens.hpp"
+
+using namespace std;
+
+template<typename T>
+struct Coll
+{
+   char c;                       //caracterSeparador
+   string token ="";             //cadena de tokens, puede ser eliminada del todo
+   string tokenRespaldo = "";    //respaldo que no se puede borrar del todo, al menos queriendo, dando la posibilidad de resetear el token borrado
+   int pos;                      //posicion en la que me encuentro en la cadena
+};
+
+template<typename T>
+Coll<T> coll(char sep)
+{
+   Coll<T> c;
+   c.c = sep;
+   return c;
+}
+
+template<typename T>
+Coll<T> coll()
+{
+   Coll<T> c;
+   c.c = '|';
+   return c;
+}
+
+template<typename T>
+int collSize(Coll<T> c)
+{
+   return tokenCount(c.token, c.c);
+}
+
+template<typename T>
+void collRemoveAll(Coll<T>& c)
+{
+   string voidToken = "";
+   c.token = voidToken;
+}
+
+template<typename T>
+void collRemoveAt(Coll<T>& c, int p)
+{
+   removeTokenAt(c.token,c.c,0);
+   removeTokenAt(c.tokenRespaldo,c.c,0);
+}
+
+template<typename T>
+int collAdd(Coll<T>& c,T t,string tToString(T))
+{
+   addToken(c.token,c.c,tToString(t));
+   c.tokenRespaldo = c.token;
+   return findToken(c.token,c.c,tToString(t));
+}
+
+template <typename T>
+void collSetAt(Coll<T>& c,T t,int p,string tToString(T))
+{
+   setTokenAt(c.token,c.c,tToString(t),p);
+   setTokenAt(c.tokenRespaldo,c.c,tToString(t),p);
+}
+
+template <typename T>
+T collGetAt(Coll<T> c,int p,T tFromString(string))
+{
+
+   T t = tFromString(getTokenAt(c.token,c.c,p));
+   return t;//agregar trim, posible falla de generacion de espacios.
+}
+
+template <typename T, typename K>
+int collFind(Coll<T> c,K k,int cmpTK(T,K),T tFromString(string))
+{
+   for(int i = 0;i<collSize(c);i++){
+      T t = tFromString(getTokenAt(c.token,c.c,i)); // Se removio la funcion trim, generaba un error al usar otros struct, pero ¿Ahora se generan espacios?
+      if(cmpTK(t,k)== 0){
+         return 0;
+      }
+   }
+
+   return -1;
+}
+
+template <typename T>
+void collSort(Coll<T>& c,int cmpTT(T,T),T tFromString(string),string tToString(T))
+{
+    for (int i = 0; i < collSize(c) - 1; i++) { //le resto 1 porque Posicion != cantidadElementos
+        for (int j = 0; j < collSize(c) - i - 1; j++) {
+            T t1 = tFromString(getTokenAt(c.token, c.c, j));   //el trim es para que no se generen espacios de mas, no se porque pasa eso
+            T t2 = tFromString(getTokenAt(c.token, c.c, j + 1));
+
+            if (cmpTT(t1, t2) > 0) { //Si el primer elemento es "Alfabeticamente mayor" al segundo, el [0,1][1,2][2,3]...
+                // Intercambiar los elementos
+               setTokenAt(c.token, c.c, tToString(t2), j);
+               setTokenAt(c.token, c.c, tToString(t1), j + 1);
+            }
+        }
+    }
+}
+
+template <typename T>
+bool collHasNext(Coll<T> c) {
+    return !c.token.empty(); // Verifica si la cadena token de la colección está vacía
+}
+
+template<typename T>
+T collNext(Coll<T>& c,T tFromString(string))
+{
+      T t = tFromString(getTokenAt(c.token, c.c, 0)); // Obtenemos el siguiente elemento de la cadena token
+      setTokenAt(c.token, c.c, "", 0); // Eliminamos el primer token de la cadena token, ahora el token que estaba en el 2 pasa al 1, y el 1, al 0
+      return t; // Retornamos el siguiente elemento
+}
+
+template<typename T>
+T collNext(Coll<T>& c,bool& eoc,T tFromString(string))
+{
+
+       if (c.pos == collSize(c)) {  // Si la posición es mayor o igual al tamaño de la colección
+          eoc = true;              // Indicamos que se ha llegado al final de la colección
+          return T();               // Retornamos un valor por defecto
+       }
+
+       T nextToken = tFromString(getTokenAt(c.token, c.c, c.pos));  // Obtenemos el siguiente elemento
+       c.pos++;                                                     // Incrementamos la posición
+
+       return nextToken;
+
+}
+
+template<typename T>
+void collReset(Coll<T>& c)
+{
+   c.token = c.tokenRespaldo;
+   c.pos = 0;
+}
+
+template<typename T>
+string collToString(Coll<T> c)
+{
+   return c.c+c.token;
+}
+
+template<typename T>
+Coll<T> collFromString(string s)
+{
+   Coll<T> c;
+   c.c=s[0];
+   c.token=substring(s,1);
+   return c;
+}
+
+#endif

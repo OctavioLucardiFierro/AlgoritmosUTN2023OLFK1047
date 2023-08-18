@@ -1,0 +1,415 @@
+#ifndef _MAINHPP
+#define _MAINHPP
+#include <iostream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <string.h>
+#include <stdlib.h>
+#include "biblioteca/funciones/strings.hpp"
+#include "biblioteca/funciones/tokens.hpp"
+#include "biblioteca/tads/Coll.hpp"
+using namespace std;
+
+struct Producto
+{
+   int idProd;
+   char descr[20];
+   double precio;
+   int idRub;
+};
+
+struct RProducto
+{
+   Producto p;
+   int cont;
+};
+
+
+struct Rubro
+{
+   int idRub;
+   char descr[20];
+   double promo;
+};
+
+struct RRubro
+{
+   Rubro r;
+   double acum;
+};
+
+struct Par
+{
+   int idPro;
+   int cant;
+};
+
+struct Item
+{
+   Producto p;
+   int cant;
+};
+
+string productoToString(Producto x)
+{
+   char sep = 1;
+   string sIdProd=to_string(x.idProd);
+   string sDescr=x.descr;
+   string sPrecio=to_string(x.precio);
+   string sIdRub=to_string(x.idRub);
+   return sIdProd+sep+sDescr+sep+sPrecio+sep+sIdRub;
+}
+
+Producto productoFromString(string s)
+{
+   char sep = 1;
+   Producto x;
+   string t0 = getTokenAt(s,sep,0);
+   x.idProd=stoi(t0);
+   string t1 = getTokenAt(s,sep,1);
+   strcpy(x.descr,t1.c_str());
+   string t2 = getTokenAt(s,sep,2);
+   x.precio=stod(t2);
+   string t3 = getTokenAt(s,sep,3);
+   x.idRub=stoi(t3);
+   return x;
+}
+
+string productoToDebug(Producto x)
+{
+   stringstream sout;
+   sout<< "[";
+   sout << x.idProd;
+   sout << ",";
+   sout << x.descr;
+   sout << ",";
+   sout << x.precio;
+   sout << ",";
+   sout << x.idRub;
+   sout<< "]";
+   return sout.str();
+}
+
+string productoToDebug(string mssg,Producto x)
+{
+   stringstream sout;
+   sout<< mssg<<":[";
+   sout << x.idProd;
+   sout << ",";
+   sout << x.descr;
+   sout << ",";
+   sout << x.precio;
+   sout << ",";
+   sout << x.idRub;
+   sout<< "]";
+   return sout.str();
+}
+
+Producto producto(int idProd,string descr,double precio,int idRub)
+{
+   Producto a;
+   a.idProd = idProd;
+   strcpy(a.descr,descr.c_str());
+   a.precio = precio;
+   a.idRub = idRub;
+   return a;
+}
+
+bool productoEquals(Producto a,Producto b)
+{
+   if(a.idProd!=b.idProd) return false;
+   if(a.precio!=b.precio) return false;
+   if(a.idRub!=b.idRub) return false;
+   return true;
+}
+
+string rProductoToString(RProducto x)
+{
+   char sep = 2;
+   string sP=productoToString(x.p);
+   string sCont=to_string(x.cont);
+   return sP+sep+sCont;
+}
+
+RProducto rProductoFromString(string s)
+{
+   char sep = 2;
+   RProducto x;
+   string t0 = getTokenAt(s,sep,0);
+   x.p=productoFromString(t0);
+   string t1 = getTokenAt(s,sep,1);
+   x.cont=stoi(t1);
+   return x;
+}
+
+string rProductoToDebug(RProducto x)
+{
+   stringstream sout;
+   sout<< "[";
+   sout << productoToDebug(x.p);
+   sout << ",";
+   sout << x.cont;
+   sout<< "]";
+   return sout.str();
+}
+
+string rProductoToDebug(string mssg,RProducto x)
+{
+   stringstream sout;
+   sout<< mssg<<":[";
+   sout << productoToDebug(x.p);
+   sout << ",";
+   sout << x.cont;
+   sout<< "]";
+   return sout.str();
+}
+
+RProducto rProducto(Producto p,int cont)
+{
+   RProducto a;
+   a.p = p;
+   a.cont = cont;
+   return a;
+}
+
+bool rProductoEquals(RProducto a,RProducto b)
+{
+   if(!productoEquals(a.p,b.p)) return false;
+   if(a.cont!=b.cont) return false;
+   return true;
+}
+
+string rubroToString(Rubro x)
+{
+   char sep = 3;
+   string sIdRub=to_string(x.idRub);
+   string sDescr=x.descr;
+   string sPromo=to_string(x.promo);
+   return sIdRub+sep+sDescr+sep+sPromo;
+}
+
+Rubro rubroFromString(string s)
+{
+   char sep = 3;
+   Rubro x;
+   string t0 = getTokenAt(s,sep,0);
+   x.idRub=stoi(t0);
+   string t1 = getTokenAt(s,sep,1);
+   strcpy(x.descr,t1.c_str());
+   string t2 = getTokenAt(s,sep,2);
+   x.promo=stod(t2);
+   return x;
+}
+
+string rubroToDebug(Rubro x)
+{
+   stringstream sout;
+   sout<< "[";
+   sout << x.idRub;
+   sout << ",";
+   sout << x.descr;
+   sout << ",";
+   sout << x.promo;
+   sout<< "]";
+   return sout.str();
+}
+
+string rubroToDebug(string mssg,Rubro x)
+{
+   stringstream sout;
+   sout<< mssg<<":[";
+   sout << x.idRub;
+   sout << ",";
+   sout << x.descr;
+   sout << ",";
+   sout << x.promo;
+   sout<< "]";
+   return sout.str();
+}
+
+Rubro rubro(int idRub,string descr,double promo)
+{
+   Rubro a;
+   a.idRub = idRub;
+   strcpy(a.descr,descr.c_str());
+   a.promo = promo;
+   return a;
+}
+
+bool rubroEquals(Rubro a,Rubro b)
+{
+   if(a.idRub!=b.idRub) return false;
+   if(a.promo!=b.promo) return false;
+   return true;
+}
+
+string rRubroToString(RRubro x)
+{
+   char sep = 4;
+   string sR=rubroToString(x.r);
+   string sAcum=to_string(x.acum);
+   return sR+sep+sAcum;
+}
+
+RRubro rRubroFromString(string s)
+{
+   char sep = 4;
+   RRubro x;
+   string t0 = getTokenAt(s,sep,0);
+   x.r=rubroFromString(t0);
+   string t1 = getTokenAt(s,sep,1);
+   x.acum=stod(t1);
+   return x;
+}
+
+string rRubroToDebug(RRubro x)
+{
+   stringstream sout;
+   sout<< "[";
+   sout << rubroToDebug(x.r);
+   sout << ",";
+   sout << x.acum;
+   sout<< "]";
+   return sout.str();
+}
+
+string rRubroToDebug(string mssg,RRubro x)
+{
+   stringstream sout;
+   sout<< mssg<<":[";
+   sout << rubroToDebug(x.r);
+   sout << ",";
+   sout << x.acum;
+   sout<< "]";
+   return sout.str();
+}
+
+RRubro rRubro(Rubro r,double acum)
+{
+   RRubro b;
+   b.r = r;
+   b.acum = acum;
+   return b;
+}
+
+bool rRubroEquals(RRubro a,RRubro b)
+{
+   if(!rubroEquals(a.r,b.r)) return false;
+   if(a.acum!=b.acum) return false;
+   return true;
+}
+
+string parToString(Par x)
+{
+   char sep = 5;
+   string sIdPro=to_string(x.idPro);
+   string sCant=to_string(x.cant);
+   return sIdPro+sep+sCant;
+}
+
+Par parFromString(string s)
+{
+   char sep = 5;
+   Par x;
+   string t0 = getTokenAt(s,sep,0);
+   x.idPro=stoi(t0);
+   string t1 = getTokenAt(s,sep,1);
+   x.cant=stoi(t1);
+   return x;
+}
+
+string parToDebug(Par x)
+{
+   stringstream sout;
+   sout<< "[";
+   sout << x.idPro;
+   sout << ",";
+   sout << x.cant;
+   sout<< "]";
+   return sout.str();
+}
+
+string parToDebug(string mssg,Par x)
+{
+   stringstream sout;
+   sout<< mssg<<":[";
+   sout << x.idPro;
+   sout << ",";
+   sout << x.cant;
+   sout<< "]";
+   return sout.str();
+}
+
+Par par(int idPro,int cant)
+{
+   Par a;
+   a.idPro = idPro;
+   a.cant = cant;
+   return a;
+}
+
+bool parEquals(Par a,Par b)
+{
+   if(a.idPro!=b.idPro) return false;
+   if(a.cant!=b.cant) return false;
+   return true;
+}
+
+string itemToString(Item x)
+{
+   char sep = 6;
+   string sP=productoToString(x.p);
+   string sCant=to_string(x.cant);
+   return sP+sep+sCant;
+}
+
+Item itemFromString(string s)
+{
+   char sep = 6;
+   Item x;
+   string t0 = getTokenAt(s,sep,0);
+   x.p=productoFromString(t0);
+   string t1 = getTokenAt(s,sep,1);
+   x.cant=stoi(t1);
+   return x;
+}
+
+string itemToDebug(Item x)
+{
+   stringstream sout;
+   sout<< "[";
+   sout << productoToDebug(x.p);
+   sout << ",";
+   sout << x.cant;
+   sout<< "]";
+   return sout.str();
+}
+
+string itemToDebug(string mssg,Item x)
+{
+   stringstream sout;
+   sout<< mssg<<":[";
+   sout << productoToDebug(x.p);
+   sout << ",";
+   sout << x.cant;
+   sout<< "]";
+   return sout.str();
+}
+
+Item item(Producto p,int cant)
+{
+   Item a;
+   a.p = p;
+   a.cant = cant;
+   return a;
+}
+
+bool itemEquals(Item a,Item b)
+{
+   if(!productoEquals(a.p,b.p)) return false;
+   if(a.cant!=b.cant) return false;
+   return true;
+}
+
+#endif

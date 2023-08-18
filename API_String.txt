@@ -1,0 +1,694 @@
+#ifndef _TSTRINGS_T_
+#define _TSTRINGS_T_
+
+#include <iostream>
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include <cctype>
+
+using namespace std;
+
+
+
+int length(string s)
+{
+   int i = 0;
+   while(s[i] != '\0'){
+      i++;
+   }
+   return i;
+}
+
+int charCount(string s,char c)
+{
+   int i = 0;
+   int cont = 0;
+   while(s[i] != '\0'){
+      if (s[i] == c){
+         cont++;
+      }
+      i++;
+   }
+   return cont;
+}
+
+string substring(string s,int d,int h)
+{
+      string x;
+      int cont = d;
+      while(s[cont] != s[h]){
+         x+=s[cont];
+         cont++;
+      }
+   return x;
+}
+
+string substring(string s,int d) // ok
+{
+         string x;
+         int cont = d;
+         while(s[cont] != '\0' ){
+            x+=s[cont];
+            cont++;
+         }
+      return x;
+}
+
+int indexOf(string s, char c) {
+    int cont = 0;
+    while(s[cont] != '\0'){
+       if (s[cont] == c){
+          return cont;
+       }
+       cont++;
+    }
+    return -1;
+}
+
+int indexOf(string s,char c,int offSet) // ok
+{
+   int cont = offSet;
+       while(s[cont] != '\0'){
+          if (s[cont] == c){
+             return cont;
+          }
+          cont++;
+       }
+       return -1;
+}
+
+int indexOf(string s,string toSearch) // ok
+{
+   int cont = 0;
+   int contSe = length (toSearch);
+   while(s[cont] != '\0'){
+
+      int cantLetrasBien = 0;
+      int contFor = cont;
+      for(int x = 0;x < contSe;x++){
+         if(s[contFor] == toSearch[x]){
+            cantLetrasBien++;
+            contFor++;
+         }
+
+         if (cantLetrasBien == contSe){
+            return cont++;
+         }
+      }
+      cont++;
+   }
+   return -1;
+}
+
+int indexOf(string s,string toSearch,int offset) // ok
+{
+   int cont = offset;
+      int contSe = length (toSearch);
+      while(s[cont] != '\0'){
+
+         int cantLetrasBien = 0;
+         int contFor = cont;
+         for(int x = 0;x < contSe;x++){
+            if(s[contFor] == toSearch[x]){
+               cantLetrasBien++;
+               contFor++;
+            }
+
+            if (cantLetrasBien == contSe){
+               return cont++;
+            }
+         }
+         cont++;
+      }
+      return -1;
+}
+
+int lastIndexOf(string s,char c)
+{
+   int cont = 0;
+   int ultiPos = 0;
+   bool huboC = false;
+   while(s[cont] != '\0'){
+      if(s[cont] == c){
+         huboC = true;
+         ultiPos = cont;
+
+      }
+      cont++;
+   }
+   if(huboC){
+      return ultiPos;
+   }
+   return -1;
+}
+
+int indexOfN(string s,char c,int n)
+{
+      int cont = 0;
+      int cantC = 0;
+      while (s[cont] != '\0'){
+         if(s[cont] == c){
+            cantC++;
+            if(cantC == n){
+               return cont;
+            }
+
+         }
+         cont++;
+
+      }
+      if(cantC<n){
+         return length(s);
+      }
+
+      if(n<=0){
+         return -1;
+      }
+      return 0;
+}
+
+int charToInt(char c)
+{
+   if (c >= '0' && c <= '9') {
+         return c - '0';
+      }else if (c >= 'A' && c <= 'Z') {
+         return c - 'A' + 10; // al hacer int 'A' me da 65, 65-A (En ascii es 65 = A), me queda en 0,
+      }else if (c >= 'a' && c <= 'z') { // por lo que a partir de ahi sumo 10, para que valga el valor que
+         return c - 'a' + 10; // yo quiera. Lo mismo va para las minusculas: c=b (a=97) => 98 - 97 = 1 => 1+10 = b(El valor que le asigno)
+      }else { // En caso de que no sea numerico retorno un error
+         return -404;
+      }
+}
+
+char intToChar(int i)
+{
+   if (0<i && i<9){
+      return i;
+   }
+   if(10<=i && i<=35){
+      return ((i -10) + 'A');
+   }
+   if(i>=65 && i<=90){
+         return i;
+      }
+   return 'X';
+}
+
+int getDigit(int n,int i)
+{
+   int pos = 0;
+   while (n > 0) {
+       int digito = n % 10;
+       n /= 10;
+       if(pos == i){
+          return digito;
+       }
+       pos++;
+   }
+   return -1;
+}
+
+int digitCount(int n)
+{
+   int cant = 0;
+   while(n != 0){
+      n/=10;
+      cant ++;
+   }
+   return cant;
+
+}
+
+string intToString(int i)
+{
+   //string s = std::to_string(i); // devuelve una representación de string del valor especificado
+   string s = "";
+   int vOriginal = i;
+   if(i<0){
+     i*= (-1);
+   }
+         while(i>0){
+            char digit = (i % 10) + '0';
+            s = digit + s;
+            i /= 10;
+         }
+         if(vOriginal < 0){
+            s = "-" + s;
+         }
+         return s;
+}
+
+int stringToInt(string s,int b) // ok
+{
+       int v = 0;
+       int potencia = 1;
+       for (int i = length(s) - 1; i >= 0; i--) {
+           int valor = 0;
+           if (s[i] >= '0' && s[i] <= '9') {
+               valor = s[i] - '0';
+           } else if (s[i] >= 'a' && s[i] <= 'z') {
+               valor = s[i] - 'a' + 10;
+           } else if (s[i] >= 'A' && s[i] <= 'Z') {
+               valor = s[i] - 'A' + 10;
+           } else {
+               // Manejo de error: carácter no válido en la cadena
+               return -1;
+           }
+           v += valor * potencia;
+           potencia *= b;
+       }
+       return v;
+}
+
+int stringToInt(string s) // ok
+{
+   int v = 0;
+          int potencia = 1;
+          for (int i = length(s) - 1; i >= 0; i--) {
+              int valor = 0;
+              if (s[i] >= '0' && s[i] <= '9') {
+                  valor = s[i] - '0';
+              } else if (s[i] >= 'a' && s[i] <= 'z') {
+                  valor = s[i] - 'a' + 10;
+              } else if (s[i] >= 'A' && s[i] <= 'Z') {
+                  valor = s[i] - 'A' + 10;
+              } else {
+                  // Manejo de error: carácter no válido en la cadena
+                  return -1;
+              }
+              v += valor * potencia;
+              potencia *= 10;
+          }
+          return v;
+}
+
+string charToString(char c)
+{
+   string s = "";
+   s = c + s;
+   if (c == ' '){
+      cout<<"Vacio"<<endl;
+   }
+   return s;
+}
+
+char stringToChar(string s)
+{
+   if(s == " "){
+      cout<<"VACIO"<<endl;
+   }
+      return s[0];
+}
+
+string stringToString(string s)
+{
+   return s;
+}
+
+string doubleToString(double d)
+{
+   string s = "";
+       char digito[2] = {0}; //declaro esto para usarlo en el sprintf, para almacenar temporalmente cada uno de los dígitos del número.
+       if (d < 0) {
+           d *= (-1);
+           s = "-"; // si el resultado es negativo agrega un menos
+       }
+       int potencia = 1;
+       while (d >= 0.00000001) {
+           int entero = (int)d;
+           double decimal = d - entero;
+           sprintf(digito, "%d", entero);
+           s += digito;
+           if (potencia == 1) { // coloca la coma
+               s += ".";
+           }
+           d = decimal * 10;
+           potencia *= 10;
+       }
+       if (s == "") {
+           s = "0";
+       }
+       return s;
+}
+
+double stringToDouble(string s)
+{
+   double resultado = 0.0;
+       bool negativo = false;
+       int i = 0;
+       char c = (s[i]);
+       // Verificar si la cadena es negativa
+       if (s[i] == '-') {
+           negativo = true;
+           i++;
+           c = s[i];
+       }
+       // Obtener la parte entera
+
+       while (charToInt(c)>0 && charToInt(c) <9) {
+           resultado *= 10.0;
+           resultado += s[i] - '0';
+           i++;
+           c = s[i];
+       }
+       // Obtener la parte decimal, si es que la hay
+       if (s[i] == '.') {
+           double factor = 0.1;
+           i++;
+           c = s[i];
+           while (charToInt(c)>0 && charToInt(c) <9) { //funcion que indica si un caracter es un numero, marca error porque es un string en lugar de un char
+               resultado += (s[i] - '0') * factor;
+               factor *= 0.1;
+               i++;
+               c = s[i];
+           }
+       }
+       // Multiplicar por -1 si la cadena es negativa
+       if (negativo) {
+           resultado *= -1.0;
+       }
+       return resultado;
+
+}
+
+bool isEmpty(string s)
+{
+   if (s ==""){
+      return true;
+   }
+   return false;
+}
+
+bool startsWith(string s,string x)
+{
+   int cantX = length(x);
+   int cantBien = 0;
+   int pos = 0;
+
+      int contFor = pos;
+
+      if (s[pos] == x[0]){
+         cantBien++;
+
+         for(int i = pos;i<cantX;i++){
+            if(s[contFor] == x[i]){
+               cantBien++;
+               contFor++;
+               if(cantBien == cantX){
+                  return true;
+               }
+            }
+         }
+      }
+
+
+   return false;
+}
+
+bool endsWith(string s,string x)
+{
+   int largoS = length(s);
+   int posFinalX = length(x) -1 ;
+   int cantBien = 0;
+
+  for(int i = largoS-1; i >= 0 ;i--){
+
+      //cout<<"en el for"<<endl;
+      if (x[posFinalX] == s[i]){
+         cantBien++;
+         posFinalX -= 1;
+
+         if(cantBien == length(x)){
+           return true;
+          }
+      }
+
+   }
+   return false;
+}
+
+bool contains(string s,char c)
+{
+   int x=0;
+   while (s[x] != '\0'){
+      if(s[x]==c){
+         return true;
+      }
+      x++;
+   }
+   return false;
+}
+
+string replace(string s,char oldChar,char newChar)
+{
+   int pos=0;
+   while(s[pos] != '\0'){
+      if (s[pos] == oldChar){
+         s[pos] = newChar;
+      }
+      pos++;
+   }
+   return s;
+}
+
+string insertAt(string s,int pos,char c)
+{
+      int largo = length(s);
+      string s2(largo + 1, 'x');// Declaro un nuevo stringcon la longitud del anterior +1, y todos en caracter x
+
+       for (int i = 0; i < largo; i++) {
+           if (i < pos) {
+              s2[i] = s[i];
+           } else {
+              s2[i + 1] = s[i];
+           }
+       }
+
+       s2[pos] = c;
+//
+//       string a = substring (s,0,pos);
+//            string b = substring (s,pos);
+//             return a+c+b;
+
+       return s2;
+}
+
+string removeAt(string s,int pos)
+{
+         int largo = length(s);
+         string s2(largo - 1, 'x');// Declaro un nuevo stringcon la longitud del anterior -1, y todos en caracter x
+
+          for (int i = 0; i < largo; i++) {
+              if (i < pos) {
+                 s2[i] = s[i];
+              } else {
+                  s2[i] = s[i + 1];
+              }
+          }
+
+          return s2;
+}
+
+string ltrim(string s)
+{
+   int pos = 0;
+   int cantEs = 0;
+   while (s[pos] == ' ') {
+      cantEs++;
+      pos++;
+   }
+   int len = length(s);
+   string s2(len - cantEs, ' ');
+
+   for (int i = 0; i < len - cantEs; i++) {
+       s2[i] = s[i + cantEs];
+   }
+   return s2;
+}
+string rtrim(string s)
+{
+   int pos = length(s) - 1;
+   int cantEs = 0;
+   while (s[pos] == ' ') {
+      cantEs++;
+      pos--;
+   }
+   int len = length(s)- cantEs;
+   string s2(len , ' ');
+
+   for (int i = len; i >= 0; i--) {
+      if(s[i] != ' '){
+         s2[i] = s[i];
+      }
+//      s2[i] = s[i - cantEs];
+   }
+   return s2;
+}
+
+string trim(string s)
+{
+      string s2 = ltrim(s);
+      s2 = rtrim(s2);
+      return s2;
+}
+
+string replicate(char c,int n)
+{
+   string s (n, 'o');
+   for(int x = 0; x<n;x++){
+      s[x] =  c;
+   }
+
+   return s;
+}
+
+string spaces(int n)
+{
+   string s(n, ' ');
+   return s;
+}
+
+string lpad(string s,int n,char c)
+{
+
+   if (length(s) <= n){
+      string s2(n - length(s), c);
+      s2 = s2 + s;
+      return s2;
+   }
+   return s;
+}
+
+string rpad(string s,int n,char c)
+{
+   if (length(s) <= n){
+         string s2(n - length(s), c);
+         s2 = s + s2;
+         return s2;
+      }
+      return s;
+}
+
+string cpad(string s,int n,char c)
+{
+   if (length(s) <= n){
+      int len = n - length(s);
+      string s2((len/2), c);
+      string s3((len/2), c);
+      s2 = s3 + s + s2;
+      return s2;
+   }
+   return s;
+}
+
+bool isDigit(char c)
+{
+   int i = charToInt(c);
+   if(i > 0 && i<9){
+      return true;
+   }
+   return false;
+}
+
+bool isLetter(char c)
+{
+
+   if(c >= 'A' && c<='Z'){
+      return true;
+   }else if(c >= 'a' && c<='z'){
+      return true;
+   }
+   return false;
+}
+
+bool isUpperCase(char c)
+{
+   if(c >= 'A' && c<='Z'){
+        return true;
+     }
+   return false;
+}
+
+bool isLowerCase(char c)
+{
+   if(c >= 'a' && c<='z'){
+         return true;
+      }
+      return false;
+}
+
+char toUpperCase(char c)
+{
+
+   return (c + ('A' - 'a'));
+}
+
+char toLowerCase(char c)
+{
+   return (c - ('A' - 'a'));
+}
+
+string toUpperCase(string s)
+{
+
+/*   char c = stringToChar(s); convierte una letra,
+   return charToString(c + ('A' - 'a'));*/
+
+   string newS(length(s), ' ');
+   int i = 0;
+   char c;
+   while(s[i] != '\0'){
+      c = s[i];
+      if(s[i] != ' '){
+         newS[i] = c + 'A' - 'a';
+      }
+      i++;
+   }
+   return newS;
+}
+
+string toLowerCase(string s)
+{
+   string newS(length(s), ' ');
+   int i = 0;
+   char c;
+   while(s[i] != '\0'){
+      c = s[i];
+      if(s[i] != ' '){
+         newS[i] = c - ('A' - 'a');
+      }
+      i++;
+   }
+   return newS;
+}
+
+int cmpString(string a,string b)
+{
+   int pos = 0;
+   while(a[pos] != '\0' || b[pos] != '\0'){
+      if(a[pos] < b[pos])
+      {
+         return - 1;
+      }
+      if(a[pos] > b[pos])
+        {
+           return 1;
+        }
+      pos++;
+   }
+   return 0;
+}
+
+int cmpDouble(double a,double b)
+{
+  if(a>b){
+     return 1;
+  }
+  if(a<b){
+     return -1;
+  }
+   return 0;
+}
+
+#endif
