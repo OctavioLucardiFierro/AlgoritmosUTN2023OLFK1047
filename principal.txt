@@ -1,0 +1,182 @@
+
+#ifndef _MAIN
+#define _MAIN
+
+#include <iostream>
+#include "biblioteca/funciones/strings.hpp"
+#include "biblioteca/funciones/tokens.hpp"
+#include "biblioteca/funciones/files.hpp"
+#include "biblioteca/tads/parte2/Array.hpp"
+#include "biblioteca/tads/parte2/Map.hpp"
+#include "biblioteca/tads/parte2/List.hpp"
+#include "biblioteca/tads/parte2/Stack.hpp"
+#include "biblioteca/tads/parte2/Queue.hpp"
+#include "biblioteca/tads/parte1/Coll.hpp"
+#include "biblioteca/tads/parte1/MultidimColl.hpp"
+using namespace std;
+
+template <typename T>
+void mostrar(string nom,Array<T> a)
+{
+   cout << nom<<":[";
+   int n = arraySize<T>(a);
+   for(int i=0;i<n;i++)
+   {
+      T* t = arrayGet<T>(a,i);
+      string x = (i<n-1)?",":"";
+      cout << *t ;
+      cout << x;
+   }
+   cout << "]"<<endl;
+}
+
+template <typename T>
+void arrayCopy(Array<T>& a, Array<T> b)
+{
+   arrayRemoveAll<T>(a);
+   for( int i = 0; i<arraySize<T>(b); i++ )
+   {
+      T* t = arrayGet<T>(b,i);
+      arrayAdd<T>(a,*t);
+   }
+}
+
+template <typename K, typename V>
+void mapSortByKiss(Map<K, V>& m, int cmpKK(K, K))
+{
+   mostrar<K>("m.keys",m.keys);
+   Map<K, V> aux = map<K, V>();
+   aux.values = m.values;
+   aux.keys = m.keys;
+   arraySort<K>(aux.keys,cmpKK);  //ordeno el array keys
+   mostrar<K>("aux.keys",aux.keys);
+
+   for( int i = 0; i<arraySize(m.keys); i++ )
+   {
+      mostrar<K>("m.keys despues de ordenar el aux",m.keys);
+
+      K* keyMapOri = arrayGet<K>(m.keys,i);                           //Obtengo la primer key
+      cout<< *keyMapOri;
+      cout<<endl;
+      int newPos = arrayFind<K,K>(aux.keys,*keyMapOri,cmpKK);   // Busco la pos de la primer key en el nuevo array
+
+      cout<<"new pos = "<< newPos<<endl;
+
+
+      V* valueMapOri = arrayGet<V>(m.values,i);              //Busco el valor asoscioado a la primera pos del array
+      arraySet(aux.values,newPos, *valueMapOri);     // Reemplazo el valor obtenido en la pos en la que esta la key
+   }
+
+      m.keys = aux.keys;                              //Actualizo los arrays originales
+      m.values = aux.values;
+//   arrayCopy<K>(m.keys,aux.keys);
+   mostrar<K>("m.keys",m.keys);
+//   arrayCopy<V>(m.values,aux.values);
+   mostrar<V>("m.values",m.values);
+}
+
+
+int main()
+{
+   Map<int, string> m = map<int, string>();
+
+   mapPut<int, string>(m,4,"Cuatro");
+   mapPut<int, string>(m,1,"Uno");
+   mapPut<int, string>(m,3,"Tres");
+   mapPut<int, string>(m,2,"Dos");
+
+   //mapSortByKiss(m,cmpInt);
+
+   Array<int> a = array<int>();
+   arrayAdd<int>(a,2);
+   arrayAdd<int>(a,8);
+   arrayAdd<int>(a,5);
+   arrayAdd<int>(a,0);
+   arrayAdd<int>(a,4);
+
+   mostrar<int>("a",a);
+   Array<int> b = array<int>();
+   b = a;
+   arraySort<int>(b,cmpInt);
+   mostrar<int>("b",b);
+   mostrar<int>("a, despues de ordenar b",a);
+
+
+
+   //cout<< *p;
+//   while( mapHasNext<int, string>(m) )
+//   {
+//      string* s = mapNextValue<int, string>(m);
+//      cout<<*s<<endl;
+//   }
+
+   return 0;
+}
+
+
+//   Array<int> a = array<int>();
+//   arrayAdd<int>(a,2);
+//   arrayAdd<int>(a,1);
+//   arrayAdd<int>(a,3);
+//   // ordeno
+//   arraySort<int>(a,cmpInt);
+//
+//   for(int i=0; i<arraySize<int>(a); i++)
+//   {
+//    int* s = arrayGet<int>(a,i);
+//    // SALIDA: Pablo, Pedro, Juan
+//    cout << *s << endl;
+//   }
+
+//     Coll<string> collection = coll<string>();
+//     collection.token = "Star|Wars|Nueva|Esperanza";
+//     collAdd<string>(collection,"Lucas",stringToString);
+//     collAdd<string>(collection,"1977",stringToString);
+//     string fill = "Filloni";
+//     collSetAt(collection,fill , 4, stringToString);
+//
+//     cout<<collection.token<<endl;
+//     bool iterador = false;
+//     while(!iterador){
+//        string v = collNext<string>(collection,iterador,stringToString);
+//        cout<<v<<endl;
+//     }
+//     collReset<string>(collection);
+//     string busco = "Esperanza";
+//     int result = collFind(collection, string(busco), cmpString, stringToString);
+//     if (result >= 0) {
+//        cout << "contiene: " << busco << endl;
+//     } else {
+//        cout << "No lo contiene" << endl;
+//     }
+//     collSort(collection,cmpString, stringToString,stringToString);
+//
+//     cout<<collection.token<<endl;
+
+//     FILE* f = fopen("JUAN.x","w+b");
+//     write<short>(f,1234);
+//     write<short>(f,4321);
+//     write<short>(f,-9876);
+//     write<short>(f,231);
+//     write<short>(f,3123);
+//     write<short>(f,34);
+//
+//     fclose(f);
+
+//    FILE* f = fopen("JUAN.x","r+b");
+//     seek<short>(f,0);
+//
+//
+//     for( int i=fileSize<short>(f)-1; i>=0; i-- )
+//     {
+//      seek<short>(f,i);
+//      // numero de registro apuntado por el indicador de posicion
+//      int pos = filePos<short>(f);
+//      short s = read<short>(f);
+//      cout << "Registro Nro. " << pos << "," << s << endl;
+//     }
+//     cout<<"En el archivo hay: "<<fileSize<short>(f)<<" Elementos"<<endl;
+//     fclose(f);
+//}
+
+#endif

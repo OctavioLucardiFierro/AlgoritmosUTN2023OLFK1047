@@ -28,75 +28,150 @@ Map<K,V> map()
 template<typename K,typename V>
 V* mapGet(Map<K,V> m,K k)
 {
-   int p = arrayFind(m.keys.a,k,cmpKV);
-   V* v = &arrayGet(m.values.a,p);
-   return v;
+   for(int i = 0;i<arraySize<K>(m.keys);i++){
+      if(m.keys.a[i]==k){
+         return &(m.values.a[i]);
+      }
+   }
+   return NULL;
 }
 
 template<typename K,typename V>
 V* mapPut(Map<K,V>& m,K k,V v)
 {
-   return NULL;
+   int pos = -1;
+   int newPos;
+   for(int i = 0;i<arraySize<K>(m.keys);i++){
+         if(m.keys.a[i]==k){
+           pos = i;
+           break;
+         }
+      }
+   if(pos>(-1)){
+      arrayRemove<V>(m.values,pos);
+      arrayInsert<V>(m.values,v,pos);
+      return arrayGet<V>(m.values,pos);
+   }else{
+      newPos = arrayAdd<K>(m.keys,k);
+      arrayInsert<V>(m.values,v,newPos);
+      return arrayGet<V>(m.values,newPos);
+   }
+
 }
 
 template<typename K,typename V>
 bool mapContains(Map<K,V> m,K k)
 {
-   return true;
+   for(int i = 0;i<arraySize<K>(m.keys);i++){
+      if(m.keys.a[i]==k){
+         return true;
+      }
+   }
+   return false;
 }
 
 template<typename K,typename V>
 V mapRemove(Map<K,V>& m,K k)
 {
+   int pos;
    V v;
+   for(int i = 0;i<arraySize<K>(m.keys);i++){
+      if(m.keys.a[i]==k){
+         pos = i;
+         break;
+      }
+    }
+   v = *(arrayGet<V>(m.values,pos));
+   arrayRemove<V>(m.values,pos);
    return v;
 }
 
 template<typename K,typename V>
 void mapRemoveAll(Map<K,V>& m)
 {
+   arrayRemoveAll(m.values);
 }
 
 template<typename K,typename V>
 int mapSize(Map<K,V> m)
 {
-   return 0;
+   return arraySize<V>(m.values);
 }
 
 template<typename K,typename V>
 bool mapHasNext(Map<K,V> m)
 {
-   return true;
+
+   return m.posActual < arraySize(m.values);
 }
 
 template<typename K,typename V>
 K mapNextKey(Map<K,V>& m)
 {
-   K k;
-   return k;
+
+   K* keyNext = arrayGet<K>(m.keys,m.posActual);
+   m.posActual++;
+   return *keyNext;
 }
 
 template<typename K,typename V>
 V* mapNextValue(Map<K,V>& m)
 {
-   return NULL;
+   V* valueNext = arrayGet<V>(m.values,m.posActual);
+   m.posActual++;
+   return valueNext;
 }
 
 template<typename K,typename V>
 void mapReset(Map<K,V>& m)
 {
+   m.posActual = 0;
 }
 
 template<typename K,typename V>
 V* mapDiscover(Map<K,V>& m,K k,V v)
 {
-   return NULL;
+
+   int pos = -1;
+      for(int i = 0;i<arraySize<K>(m.keys);i++){
+            if(m.keys.a[i]==k){
+              pos = i;
+              break;
+            }
+         }
+      if(pos>(-1)){
+         arrayRemove<V>(m.values,pos);
+         arrayInsert<V>(m.values,v,pos);
+      }else{
+         arrayAdd<V>(m.values,v);
+         arrayAdd<K>(m.keys,k);
+      }
+      return arrayGet<V>(m.values,pos+1);
 }
 
 
 template<typename K,typename V>
 void mapSortByKeys(Map<K,V>& m,int cmpKK(K,K))
 {
+   Map<K, V> mapaOrdenado = map<K,V>();
+
+   mapaOrdenado= m;
+   arraySort(mapaOrdenado.keys, cmpKK);  //ordeno el array keys
+
+   K* valorMapOriginal;
+   V* valorMapaOrdenado;
+   int newPos;
+   for(int x = 0;x<arraySize(m.keys);x++){
+       valorMapOriginal = arrayGet<K>(m.keys,x);                           //Obtengo la primer key
+       newPos = arrayFind(mapaOrdenado.keys, *valorMapOriginal, cmpKK);   // Busco la pos de la primer key en el nuevo array
+
+
+       valorMapaOrdenado = arrayGet<V>(m.values,x);               //Busco el valor asoscioado a la primera pos del array
+       arraySet(mapaOrdenado.values,newPos, *valorMapaOrdenado);     // Reemplazo el valor obtenido en la pos en la que esta la key
+       cout<<"Acomode"<<endl;
+   }
+   m.keys   = mapaOrdenado.keys;                              //Actualizo los arrays originales
+   m.values = mapaOrdenado.values;
 }
 
 template<typename K,typename V>
@@ -105,3 +180,4 @@ void mapSortByValues(Map<K,V>& m,int cmpVV(V,V))
 }
 
 #endif
+
