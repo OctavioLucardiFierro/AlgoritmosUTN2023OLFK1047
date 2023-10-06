@@ -1,4 +1,3 @@
-
 #ifndef _TMAP_TAD_
 #define _TMAP_TAD_
 
@@ -153,30 +152,48 @@ V* mapDiscover(Map<K,V>& m,K k,V v)
 template<typename K,typename V>
 void mapSortByKeys(Map<K,V>& m,int cmpKK(K,K))
 {
-   Map<K, V> mapaOrdenado = map<K,V>();
+   Map<K, V> aux = map<K, V>();
 
-   mapaOrdenado= m;
-   arraySort(mapaOrdenado.keys, cmpKK);  //ordeno el array keys
+   arrayCopy<K>(aux.keys,m.keys);
+   arrayCopy<V>(aux.values,m.values);
 
-   K* valorMapOriginal;
-   V* valorMapaOrdenado;
-   int newPos;
-   for(int x = 0;x<arraySize(m.keys);x++){
-       valorMapOriginal = arrayGet<K>(m.keys,x);                           //Obtengo la primer key
-       newPos = arrayFind(mapaOrdenado.keys, *valorMapOriginal, cmpKK);   // Busco la pos de la primer key en el nuevo array
+   arraySort<K>(aux.keys,cmpKK);  //ordeno el array keys
+   for( int i = 0; i<arraySize(m.keys); i++ )
+   {
 
+      K* keyMapOri = arrayGet<K>(m.keys,i);                           //Obtengo la primer key
+      int newPos = arrayFind<K,K>(aux.keys,*keyMapOri,cmpKK);   // Busco la pos de la primer key en el nuevo array
 
-       valorMapaOrdenado = arrayGet<V>(m.values,x);               //Busco el valor asoscioado a la primera pos del array
-       arraySet(mapaOrdenado.values,newPos, *valorMapaOrdenado);     // Reemplazo el valor obtenido en la pos en la que esta la key
-       cout<<"Acomode"<<endl;
+      V* valueMapOri = arrayGet<V>(m.values,i);              //Busco el valor asoscioado a la primera pos del array
+      arraySet(aux.values,newPos, *valueMapOri);     // Reemplazo el valor obtenido en la pos en la que esta la key
    }
-   m.keys   = mapaOrdenado.keys;                              //Actualizo los arrays originales
-   m.values = mapaOrdenado.values;
+
+   arrayCopy<K>(m.keys,aux.keys);//Actualizo los arrays originales
+   arrayCopy<V>(m.values,aux.values);
 }
 
 template<typename K,typename V>
 void mapSortByValues(Map<K,V>& m,int cmpVV(V,V))
 {
+   Map<K, V> aux = map<K, V>();
+
+      arrayCopy<V>(aux.values,m.values);
+      arrayCopy<K>(aux.keys,m.keys);
+
+      arraySort<V>(aux.values,cmpVV);  //ordeno el array keys
+      for( int i = 0; i<arraySize(m.keys); i++ )
+      {
+
+         V* valMapOri = arrayGet<V>(m.values,i);                       //Obtengo la primer key
+         int newPos = arrayFind<V,V>(aux.values,*valMapOri,cmpVV);     // Busco la pos de la primer key en el nuevo array
+
+         K* keyMapOri = arrayGet<K>(m.keys,i);                   //Busco el valor asoscioado a la primera pos del array
+         arraySet(aux.keys,newPos, *keyMapOri);                  // Reemplazo el valor obtenido en la pos en la que esta la key
+      }
+
+      arrayCopy<K>(m.keys,aux.keys);//Actualizo los arrays originales
+      arrayCopy<V>(m.values,aux.values);
+
 }
 
 #endif

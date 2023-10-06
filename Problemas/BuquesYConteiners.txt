@@ -1,0 +1,273 @@
+#ifndef _MAIN
+#define _MAIN
+
+#include <iostream>
+#include "biblioteca/funciones/strings.hpp"
+#include "biblioteca/funciones/tokens.hpp"
+#include "biblioteca/funciones/files.hpp"
+#include "biblioteca/tads/parte2/Array.hpp"
+#include "biblioteca/tads/parte2/Map.hpp"
+#include "biblioteca/tads/parte2/List.hpp"
+#include "biblioteca/tads/parte2/Stack.hpp"
+#include "biblioteca/tads/parte2/Queue.hpp"
+#include "biblioteca/tads/parte1/Coll.hpp"
+#include "biblioteca/tads/huffman/BitWriter.hpp"
+#include "biblioteca/tads/huffman/BitReader.hpp"
+#include "biblioteca/tads/parte1/MultidimColl.hpp"
+
+#include <cstdlib>
+#include <ctime>
+using namespace std;
+
+
+struct Fecha{
+   int dia;
+   int mes;
+   int anio;
+};
+
+string fechaToString(Fecha x)
+{
+   char sep = 1;
+   string sDia=to_string(x.dia);
+   string sMes=to_string(x.mes);
+   string sAnio=to_string(x.anio);
+   return sDia+sep+sMes+sep+sAnio;
+}
+struct Buque
+{
+ int idBuque;
+ char nombre[50];
+ int darsena;
+ int grua;
+ int cantContainers;
+ Fecha fecha; // llegada o salida
+ int cteFlotacion;
+ char oriODest[100];
+};
+
+struct Container
+{
+ int idContainer;
+ int peso;
+ int longitud;
+ int idBuque;
+};
+
+struct RBuque{
+   Buque b;
+   Array<Container> conte;
+};
+
+Fecha getDate()
+{
+    // fecha actual expresada en segundos
+    int dia;
+    int mes;
+    int anio;
+    Fecha f;
+    time_t timestamp;
+    time(&timestamp);
+    // separo la fecha actual en atributos
+    struct tm* fechaActual = localtime(&timestamp);
+    dia = fechaActual->tm_mday;
+    mes = fechaActual->tm_mon+1;
+    anio = fechaActual->tm_year+1900;
+    f.anio = anio;
+    f.mes = mes;
+    f.dia = dia;
+    return f;
+}
+
+char actividad(Fecha f)
+{
+
+   Fecha fA = getDate();
+   if (f.anio<fA.anio)
+   {
+      return 'C';
+   }
+   else
+   {
+      return 'D';
+   }
+   if (f.mes<fA.mes)
+   {
+     return 'C';
+   }
+   else
+   {
+      return 'D';
+   }
+   if (f.dia<fA.dia)
+   {
+      return 'C';
+   }
+   else
+   {
+      return 'D';
+   }
+}
+
+string salidaOLlegada(Fecha f)
+{
+   char c = actividad(f);
+   if (c == 'C')
+   {
+      return "Salida";
+   }
+   else
+   {
+      return "Llegada";
+   }
+}
+
+bool estable(int peso,int longitud,int cteFlotacion)
+{
+   return true;
+};
+
+
+Array<Container> descubrirContainer(RBuque& rb)
+{
+   FILE* f = fopen("CONTAINERS.DAT","r+b");
+   Array<Container> ret = array<Container>();
+   Container c = read<Container>(f);
+   while(!feof(f))
+   {
+     if(rb.b.idBuque == c.idBuque)
+     {
+        arrayAdd<Container>(ret,c);
+     }
+     c = read<Container>(f);
+   }
+   return ret;
+}
+
+Map<int,RBuque> subirBuques()
+{
+   Map<int,RBuque> ret = map<int,RBuque>();
+   FILE* f = fopen("BUQUES.dat","r+b");
+
+   Buque b = read<Buque>(f);
+   while( !feof(f) )
+   {
+    RBuque rb;
+    rb.b = b;
+    rb.conte = array<Container>();
+    rb.conte = descubrirContainer(rb);
+    mapPut<int,RBuque>(ret,rb.b.idBuque,rb);
+    b = read<Buque>(f);
+   }
+      fclose(f);
+      mapSortByKeys(ret,cmpInt);
+      return ret;
+ }
+
+
+void subirListado(Map<int,RBuque> mBuq)
+{
+   Fecha f = getDate();
+   cout<<"LISTADO DE CARGAS Y DESCARGAS DEL PUERTO AL DÍA:"<<fechaToString(f)<<endl;
+   while(mapHasNext(mBuq))
+   {
+      RBuque* rb = mapNextValue(mBuq);
+      int pesoTotal;
+
+      cout<<"Id. Buque: "<<rb->b.idBuque <<actividad(rb->b.fecha) <<" Grúa: "<<rb->b.grua<<endl;
+      cout<<"Nombre: "<<rb->b.nombre<<endl;
+      cout<<" Dársena: "<<rb->b.darsena<<endl;
+      cout<<"Fecha:" <<fechaToString(rb->b.fecha)<< " de "<< salidaOLlegada(rb->b.fecha)<< "Cant. Containers: "<<rb->b.cantContainers<<endl;
+      cout<<"#Orden     Id.Container      Peso    Longitud"<<endl;
+
+         int orden;
+         int pos = 0;
+         while(arraySize<Container>(rb->conte)){
+            Container c = *arrayGet(rb->conte, pos);
+            while(!estable(c.peso,c.longitud,rb->b.cteFlotacion)){
+               cout<<orden<< c.idBuque << c.peso <<c.longitud <<endl;
+               orden++;
+               pesoTotal+= c.peso;
+            }
+            pos++;
+         }
+
+      cout<<"Peso total: "<<pesoTotal<<endl;
+      pesoTotal = 0;
+   }
+}
+
+int main()
+{
+   Map<int,RBuque> mBuq = subirBuques();
+   subirListado(mBuq);
+}
+
+#endif
+
+
+//   Array<int> a = array<int>();
+//   arrayAdd<int>(a,2);
+//   arrayAdd<int>(a,1);
+//   arrayAdd<int>(a,3);
+//   // ordeno
+//   arraySort<int>(a,cmpInt);
+//
+//   for(int i=0; i<arraySize<int>(a); i++)
+//   {
+//    int* s = arrayGet<int>(a,i);
+//    // SALIDA: Pablo, Pedro, Juan
+//    cout << *s << endl;
+//   }
+
+//     Coll<string> collection = coll<string>();
+//     collection.token = "Star|Wars|Nueva|Esperanza";
+//     collAdd<string>(collection,"Lucas",stringToString);
+//     collAdd<string>(collection,"1977",stringToString);
+//     string fill = "Filloni";
+//     collSetAt(collection,fill , 4, stringToString);
+//
+//     cout<<collection.token<<endl;
+//     bool iterador = false;
+//     while(!iterador){
+//        string v = collNext<string>(collection,iterador,stringToString);
+//        cout<<v<<endl;
+//     }
+//     collReset<string>(collection);
+//     string busco = "Esperanza";
+//     int result = collFind(collection, string(busco), cmpString, stringToString);
+//     if (result >= 0) {
+//        cout << "contiene: " << busco << endl;
+//     } else {
+//        cout << "No lo contiene" << endl;
+//     }
+//     collSort(collection,cmpString, stringToString,stringToString);
+//
+//     cout<<collection.token<<endl;
+
+//     FILE* f = fopen("JUAN.x","w+b");
+//     write<short>(f,1234);
+//     write<short>(f,4321);
+//     write<short>(f,-9876);
+//     write<short>(f,231);
+//     write<short>(f,3123);
+//     write<short>(f,34);
+//
+//     fclose(f);
+
+//    FILE* f = fopen("JUAN.x","r+b");
+//     seek<short>(f,0);
+//
+//
+//     for( int i=fileSize<short>(f)-1; i>=0; i-- )
+//     {
+//      seek<short>(f,i);
+//      // numero de registro apuntado por el indicador de posicion
+//      int pos = filePos<short>(f);
+//      short s = read<short>(f);
+//      cout << "Registro Nro. " << pos << "," << s << endl;
+//     }
+//     cout<<"En el archivo hay: "<<fileSize<short>(f)<<" Elementos"<<endl;
+//     fclose(f);
+//}
+

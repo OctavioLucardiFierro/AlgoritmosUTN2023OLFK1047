@@ -1,0 +1,68 @@
+#ifndef _TARR_BITWRITER_
+#define _TARR_BITWRITER_
+
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include "../../funciones/strings.hpp"
+#include "../../funciones/files.hpp"
+
+using namespace std;
+
+struct BitWriter
+{
+   FILE* f;
+   bool puedoEscibir;
+   int bitsTotales;
+};
+
+BitWriter bitWriter(FILE* f)
+{
+   BitWriter bw;
+   bw.f = f;
+   bw.puedoEscibir = true;
+   bw.bitsTotales = 0;
+   return bw;
+}
+
+void bitWriterWrite(BitWriter& bw,int bit)
+{
+   if(bw.puedoEscibir){
+      write(bw.f,bit);
+      bw.bitsTotales++;
+   }
+}
+
+void bitWriterWrite(BitWriter& bw,string sbit)
+{
+   if(bw.puedoEscibir){
+      int valor = 1;
+      int acum = 0;
+      int len = length(sbit);
+      while(len > 0){
+         acum = sbit[len]*2;
+         valor = valor*2;
+         len--;
+      }
+      write(bw.f,char(acum));
+      bw.bitsTotales++;
+   }
+}
+
+void bitWriterFlush(BitWriter& bw)
+{
+   if(bw.bitsTotales%8 == 0){
+      bw.puedoEscibir = false;
+   }
+   else{
+      int resto = bw.bitsTotales%8;
+      while(resto>0){
+         bitWriterWrite(bw,0);
+         bw.bitsTotales++;
+         resto--;
+      }
+      bw.puedoEscibir = false;
+   }
+}
+
+#endif

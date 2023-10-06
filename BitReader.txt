@@ -1,0 +1,64 @@
+#ifndef _TARR_BITREADER_
+#define _TARR_BITREADER_
+
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include "../../funciones/strings.hpp"
+#include "../../funciones/files.hpp"
+
+using namespace std;
+
+string _binToString(unsigned char c) {
+    string binString;
+
+    // Recorre cada bit en el valor
+    for (int i = 7; i >= 0; i--) {
+        // Comprueba si el bit en la posición actual está encendido (1)
+        if ((c >> i) & 1) {                  //desplaza el valor c hacia la derecha en i posiciones.
+            binString += "1";
+        } else {
+            binString += "0";
+        }
+    }
+
+    return binString;
+}
+
+
+struct BitReader
+{
+   FILE* f;
+   string byteActual;
+   int contador; //para iterar
+};
+
+BitReader bitReader(FILE* f)
+{
+   BitReader br;
+   br.f = f;
+   br.contador = 0;
+   br.byteActual = "";
+   return br;
+}
+
+int bitReaderRead(BitReader& br)
+{
+   if(isEmpty(br.byteActual)){
+      unsigned char b = read<unsigned char>(br.f);
+      br.byteActual = _binToString(b);
+      br.contador = 0;
+   }
+
+   char c = br.byteActual[br.contador];
+   int bit = charToInt(c);
+   br.contador++;
+
+   if(br.contador == 8){
+      br.byteActual = "";
+   }
+
+   return bit;
+}
+
+#endif
