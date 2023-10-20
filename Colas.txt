@@ -1,0 +1,64 @@
+#include <iostream>
+#include "../../funciones/lists.hpp"
+
+using namespace std;
+
+template<typename T>
+struct Queue
+{
+   Node<T>* p = NULL;
+   Node<T>* q = NULL;
+};
+
+template<typename T>
+Queue<T> queue()
+{
+   Queue<T> q;
+   return q;
+}
+
+template<typename T>
+T* queueEnqueue(Queue<T>& q,T e)
+{
+   T* t;
+   t = enqueue(q.p,q.q,e);
+   return t;
+}
+
+template<typename T>
+T queueDequeue(Queue<T>& q)
+{
+   T t;
+   t = dequeue(q.p,q.q);
+   return t;
+}
+
+template<typename T>
+bool queueIsEmpty(Queue<T> q)
+{
+   if(q.p == NULL && q.q == NULL)
+   {
+      return true;
+   }
+   else
+   {
+      return false;
+   }
+}
+
+template<typename T>
+int queueSize(Queue<T> q)
+{
+   int cont = 0;
+   Node<T>* aux = q.p;
+
+   while(aux != NULL)
+   {
+     cont++;
+     aux = aux->sig;
+   }
+
+    return cont;
+}
+
+#endif

@@ -1,0 +1,63 @@
+#ifndef TSTACK_TAD
+#define TSTACK_TAD
+
+#include <iostream>
+#include "../../funciones/lists.hpp"
+
+using namespace std;
+
+template<typename T>
+struct Stack
+{
+   Node<T>* p = NULL;
+};
+
+template<typename T>
+Stack<T> stack()
+{
+   Stack<T> st;
+   return st;
+}
+
+template<typename T>
+T* stackPush(Stack<T>& st,T e)
+{
+   push(st.p,e);
+   return st->p;
+}
+
+template<typename T>
+T stackPop(Stack<T>& st)
+{
+   T t;
+   t = pop(st.p);
+   return t;
+}
+
+template<typename T>
+bool stackIsEmpty(Stack<T> st)
+{
+   if (st.p==NULL)
+   {
+      return true;
+   }
+   else
+   {
+      return false;
+   }
+}
+
+template<typename T>
+int stackSize(Stack<T> st)
+{
+   int cont = 0;
+   Node<T>* aux = st.p;
+   while(aux!=NULL)
+   {
+      cont++;
+      aux = aux->sig;
+   }
+   return cont;
+}
+
+#endif
