@@ -1,0 +1,215 @@
+#ifndef _MAIN
+#define _MAIN
+
+#include <iostream>
+#include "biblioteca/funciones/strings.hpp"
+#include "biblioteca/funciones/tokens.hpp"
+#include "biblioteca/funciones/files.hpp"
+#include "biblioteca/tads/parte2/Array.hpp"
+#include "biblioteca/tads/parte2/Map.hpp"
+#include "biblioteca/tads/parte2/List.hpp"
+#include "biblioteca/tads/parte2/Stack.hpp"
+#include "biblioteca/tads/parte2/Queue.hpp"
+#include "biblioteca/tads/parte1/Coll.hpp"
+#include "biblioteca/tads/huffman/BitWriter.hpp"
+#include "biblioteca/tads/huffman/BitReader.hpp"
+#include "biblioteca/tads/parte1/MultidimColl.hpp"
+
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+
+using namespace std;
+
+
+struct Caract
+{
+    int idCaract;
+    char descr[100];
+};
+
+struct Casa
+{
+    int idCasa;
+    char direcc[50];
+    int idDueno;
+    int caractMask;
+    int idUsr;
+};
+
+struct RCasa{
+   Casa c;
+   double concordancia;
+};
+
+struct Busqueda
+{
+    int idUsr;
+    int caractMask;
+    int dias;
+    double tolerancia;
+};
+void mostrarCasa(int idCasa){
+
+}
+
+double concordancia(int idCasa,int mask){
+   return 0,1;
+}
+
+Busqueda leerBusqueda(){
+   Busqueda bus;
+   return bus;
+}
+bool continuarOperando(){
+   return true;
+}
+
+Map<int, RCasa> subirCasas(){
+      Map<int,RCasa> ret = map<int,RCasa>();
+      FILE* f = fopen("CASAS.dat","r+b");
+
+      Casa c = read<Casa>(f);
+      while( !feof(f) )
+      {
+       RCasa rb;
+       rb.c = c;
+       rb.concordancia = 0;
+
+       mapPut<int,RCasa>(ret,rb.c.idCasa,rb);
+       c = read<Casa>(f);
+      }
+         fclose(f);
+         mapSortByKeys(ret,cmpInt);
+         return ret;
+}
+
+Map<int,Caract> subirCaract(){
+   Map<int,Caract> ret = map<int,Caract>();
+   FILE* f = fopen("CARACTERISTICAS.dat","r+b");
+
+   Caract c = read<Caract>(f);
+   while( !feof(f) )
+     {
+        mapPut<int,Caract>(ret,c.idCaract,c);
+        c = read<Caract>(f);
+     }
+   fclose(f);
+   mapSortByKeys(ret,cmpInt);
+   return ret;
+}
+
+int cmpConcor(RCasa c1, RCasa c2){
+   double resultado = c2.concordancia - c1.concordancia;
+   return resultado<0?-1:resultado>0?1:0;
+}
+
+void mostrarCasasBuscadas(Map<int, RCasa>casas, Busqueda busca){
+
+   mapReset<int,RCasa>(casas);
+   cout<<"Listados de casas en orden decreciente acorde a sus preferencias: "<<endl;
+   RCasa rc;
+   while(mapHasNext(casas)){
+      rc = *mapNextValue<int, RCasa>(casas);
+      if(rc.concordancia>busca.tolerancia){
+         cout<<rc.c.idCasa<< ", Dueño: "<<rc.c.idDueno<< ", Direccion: "<< rc.c.direcc<< ", Concordancia: "<<rc.concordancia;
+         cout<<endl;
+
+         mostrarCasa(rc.c.idCasa);
+      }
+   }
+}
+
+
+int main()
+{
+    Busqueda busca = leerBusqueda();
+    Map <int, RCasa> casas = subirCasas();
+    Map<int, Caract> carct = subirCaract();
+
+    Map <int, RCasa> casasVacias = casas;
+    double concor;
+
+    while(continuarOperando()){
+       while(mapHasNext(casas)){
+          RCasa* c = mapNextValue(casas);
+          concor = concordancia(c->c.idCasa, busca.caractMask);
+
+          c->concordancia = concor;
+       }
+       mapSortByValues<int, RCasa>(casas,cmpConcor);
+       mostrarCasasBuscadas(casas, busca);
+
+       casas = casasVacias;
+       busca = leerBusqueda();
+    }
+    return 0;
+}
+#endif
+
+
+//   Array<int> a = array<int>();
+//   arrayAdd<int>(a,2);
+//   arrayAdd<int>(a,1);
+//   arrayAdd<int>(a,3);
+//   // ordeno
+//   arraySort<int>(a,cmpInt);
+//
+//   for(int i=0; i<arraySize<int>(a); i++)
+//   {
+//    int* s = arrayGet<int>(a,i);
+//    // SALIDA: Pablo, Pedro, Juan
+//    cout << *s << endl;
+//   }
+
+//     Coll<string> collection = coll<string>();
+//     collection.token = "Star|Wars|Nueva|Esperanza";
+//     collAdd<string>(collection,"Lucas",stringToString);
+//     collAdd<string>(collection,"1977",stringToString);
+//     string fill = "Filloni";
+//     collSetAt(collection,fill , 4, stringToString);
+//
+//     cout<<collection.token<<endl;
+//     bool iterador = false;
+//     while(!iterador){
+//        string v = collNext<string>(collection,iterador,stringToString);
+//        cout<<v<<endl;
+//     }
+//     collReset<string>(collection);
+//     string busco = "Esperanza";
+//     int result = collFind(collection, string(busco), cmpString, stringToString);
+//     if (result >= 0) {
+//        cout << "contiene: " << busco << endl;
+//     } else {
+//        cout << "No lo contiene" << endl;
+//     }
+//     collSort(collection,cmpString, stringToString,stringToString);
+//
+//     cout<<collection.token<<endl;
+
+//     FILE* f = fopen("JUAN.x","w+b");
+//     write<short>(f,1234);
+//     write<short>(f,4321);
+//     write<short>(f,-9876);
+//     write<short>(f,231);
+//     write<short>(f,3123);
+//     write<short>(f,34);
+//
+//     fclose(f);
+
+//    FILE* f = fopen("JUAN.x","r+b");
+//     seek<short>(f,0);
+//
+//
+//     for( int i=fileSize<short>(f)-1; i>=0; i-- )
+//     {
+//      seek<short>(f,i);
+//      // numero de registro apuntado por el indicador de posicion
+//      int pos = filePos<short>(f);
+//      short s = read<short>(f);
+//      cout << "Registro Nro. " << pos << "," << s << endl;
+//     }
+//     cout<<"En el archivo hay: "<<fileSize<short>(f)<<" Elementos"<<endl;
+//     fclose(f);
+//}
+

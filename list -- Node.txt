@@ -1,0 +1,284 @@
+#ifndef _TLIST_T_
+#define _TLIST_T_
+
+#include <iostream>
+#include <stdio.h>
+
+template <typename T>
+struct Node
+{
+   T info;
+   Node<T>* sig;
+};
+
+template <typename T>
+Node<T>* _createNode(T e)
+{
+   Node<T>* nodo = new Node<T>;
+   nodo->info = e;
+   nodo->sig = NULL;
+   return nodo;
+}
+
+template <typename T>
+Node<T>* add(Node<T>*& p,T e)
+{
+   Node<T>* nodo = _createNode<T>(e);
+   if(p!=NULL)
+   {
+      Node<T>* aux = p;
+      while(aux->sig!=NULL)
+      {
+         aux = aux->sig;
+      }
+      aux->sig = nodo;
+   }
+   else
+   {
+      p = nodo;
+   }
+   return nodo;
+}
+
+template <typename T>
+Node<T>* addFirst(Node<T>*& p,T e)
+{
+   Node<T>* nodo = _createNode<T>(e);
+   Node<T>* aux = p;
+   p = nodo;
+   p -> sig = aux;
+   return p;
+}
+
+template <typename T, typename K>
+T remove(Node<T>*& p,K k,int cmpTK(T,K)) //Borra el elemento k dentro del Node p
+{
+   Node<T>* aux = p;
+   Node<T>* ant = NULL;
+   T t;
+   while(aux->sig != NULL)
+   {
+      if(cmpTK(aux->info,k)==0)
+      {
+         t = aux->info;
+         if(p == aux)
+         {
+            p = aux->sig;
+         }
+         else
+         {
+            ant->sig = aux->sig;
+         }
+         delete aux;
+         return t;
+      }
+      ant = aux;
+      aux = aux->sig;
+   }
+   t = aux->info;
+   delete aux;
+   ant->sig = NULL;
+   return t;
+}
+
+template <typename T>
+T removeFirst(Node<T>*& p)
+{
+   Node<T>* aux = p->sig;
+   T t = p->info;
+
+   delete p;
+   p = aux;
+
+   return t;
+}
+
+template <typename T, typename K>
+Node<T>* find(Node<T>* p,K k,int cmpTK(T,K))
+{
+   Node<T>* aux = p;
+       while (aux != nullptr)
+       {
+           if (cmpTK(aux->info, k) == 0)
+           {
+               return aux;
+           }
+           aux = aux->sig;
+       }
+       return nullptr;
+}
+
+template <typename T>
+Node<T>* orderedInsert(Node<T>*& p,T e,int cmpTT(T,T))
+{
+   // Crear un nuevo nodo con e
+   Node<T>* nuevoNodo = _createNode<T>(e);
+
+   // Si la lista está vacía o el nuevo elemento va adelante del otro
+   if (p == NULL || cmpTT(e, p->info) < 0) {
+       // El nuevo nodo se convierte en el nuevo primer nodo y apunta al antiguo primer nodo
+       nuevoNodo->sig = p;
+       p = nuevoNodo;
+       return p; // Retorna la dirección del nuevo nodo
+   }
+
+   // Si la lista no está vacía y el nuevo elemento es mayor o igual al primer elemento de la lista
+   // Buscar la posición de inserción en la lista
+   Node<T>* aux = p;
+   while (aux->sig != NULL && cmpTT(e, aux->sig->info) >= 0) {
+       aux = aux->sig;
+   }
+
+   // Insertar el nuevo nodo después del último nodo menor que el nuevo elemento
+   nuevoNodo->sig = aux->sig;
+   aux->sig = nuevoNodo;
+   // Retorna la dirección del nuevo nodo
+   return nuevoNodo;
+}
+
+template <typename T>
+Node<T>* searchAndInsert(Node<T>*& p,T e,bool& enc,int cmpTT(T,T))
+{
+   Node <T>* nodo = find(p,e,cmpTT);
+   enc = true;
+   if(nodo == NULL)
+   {
+      enc = false;
+      orderedInsert(p,e,cmpTT);
+      nodo = find(p,e,cmpTT);
+   }
+   return nodo;
+}
+
+template <typename T>
+void sort(Node<T>*& p,int cmpTT(T,T))
+{
+   if (p == NULL || p->sig == NULL) {
+           // Si la lista está vacía o tiene un solo elemento, ya está ordenada
+           return;
+       }
+
+       bool loIntercambia = true;
+       Node<T>* ultimo = NULL;
+
+       while (loIntercambia) {
+          loIntercambia = false;
+           Node<T>* actual = p;
+
+           while (actual->sig != ultimo) {
+               if (cmpTT(actual->info, actual->sig->info) > 0) {
+                   // Intercambiar los datos de los nodos
+                   T temp = actual->info;
+                   actual->info = actual->sig->info;
+                   actual->sig->info = temp;
+                   loIntercambia = true;
+               }
+               actual = actual->sig;
+           }
+           ultimo = actual;
+       }
+}
+
+template <typename T>
+bool isEmpty(Node<T>* p)
+{
+   if(p == NULL){
+      return true;
+   }
+   return false;
+}
+
+template <typename T>
+void free(Node<T>*& p)
+{
+   p = NULL;
+}
+
+template <typename T>
+Node<T>* push(Node<T>*& p,T e)//Apilar
+{
+   return addFirst(p,e);
+}
+
+template <typename T> T pop(Node<T>*& p)
+{
+   return removeFirst(p);
+}
+
+template <typename T>
+Node<T>* enqueue(Node<T>*& p,Node<T>*& q,T e)
+{
+   Node<T>* newNode = _createNode<T>(e); //creo un nodo nuevo
+   if (q == nullptr) {
+       p = newNode; // si la ultima pos es null
+       q = newNode;
+   } else {
+       q->sig = newNode; // sino le añiado al final el nuevo nodo
+       q = newNode;  // el nuevo final es q
+   }
+   return newNode;
+}
+
+template <typename T>
+Node<T>* enqueue(Node<T>*& q,T e)
+{
+   Node<T>* newNode = _createNode<T>(e);
+       if (q == NULL) {
+           q = newNode;
+           newNode->sig = newNode; // Hace que el nuevo nodo apunte a sí mismo en una lista circular vacía
+       } else {
+           newNode->sig = q->sig; // El nuevo nodo apunta al siguiente nodo después de q
+           q->sig = newNode; // q apunta al nuevo nodo
+           q = newNode; // El nuevo nodo se convierte en el último nodo de la lista
+       }
+       return newNode;
+}
+
+template <typename T>
+T dequeue(Node<T>*& p, Node<T>*& q)
+{
+   if (isEmpty(p)) {
+       cout<<"Vacio"<<endl;
+   }
+
+   T data = p->info;
+   Node<T>* temp = p;
+
+   if (p == q) {
+       // Si hay solo un nodo en la lista
+       p = NULL;
+       q = NULL;
+   } else {
+       // Si hay más de un nodo en la lista
+       p = p->sig;
+       q->sig = p;
+   }
+
+   free(temp);
+   return data;
+}
+
+template <typename T>
+T dequeue(Node<T>*& q)
+{
+   if (q == NULL) {
+           throw std::runtime_error("La lista está vacía");
+       }
+
+       Node<T>* temp = q->sig;
+       T data = temp->info;
+
+       if (temp == q) {
+           q = NULL;
+       } else {
+           q->sig = temp->sig;
+       }
+
+       if (temp != nullptr) {
+           free(temp);
+       }
+
+       return data;
+}
+
+#endif

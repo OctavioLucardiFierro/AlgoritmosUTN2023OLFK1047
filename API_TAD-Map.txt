@@ -130,7 +130,6 @@ void mapReset(Map<K,V>& m)
 template<typename K,typename V>
 V* mapDiscover(Map<K,V>& m,K k,V v)
 {
-
    int pos = -1;
       for(int i = 0;i<arraySize<K>(m.keys);i++){
             if(m.keys.a[i]==k){

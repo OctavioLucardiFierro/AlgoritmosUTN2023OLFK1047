@@ -1,9 +1,10 @@
 #ifndef _TLIST_TAD_
 #define _TLIST_TAD_
 
-#include <iostream>
-
 #include "../../funciones/lists.hpp"
+
+#include <iostream>
+#include <stdio.h>
 
 using namespace std;
 
@@ -15,117 +16,256 @@ struct List
 };
 
 template<typename T>
-List<T>* list()
+List<T> list()
 {
-      List<T>* lista = new List<T>;
-      lista->info = T();  // Inicializa 'info' con un valor predeterminado.
-      lista->sig = nullptr;
-      return lista;
+   List<T> nuevaLista;
+   nuevaLista.info = T();  // Inicializa 'info' con un valor predeterminado.
+   nuevaLista.sig = nullptr;
+   return nuevaLista;
 }
 
 template<typename T>
 T* listAdd(List<T>& lst,T e)
 {
-   List<T>* nodo = list<T>();    //creo el que sera el ultimo nodo
-   nodo.info = e;
-      if(lst.sig != NULL)              // lo recorro hasta el final
-      {
-         List<T>* aux = lst;
-         while(aux->sig!=NULL)   //guardo la siguiente direccion mientras no sea nula en una lista auxiliar
-         {
-            aux = aux->sig;
-         }
-         aux->sig = nodo;
-      }
-      else
-      {
-         lst = nodo;
-      }
-      return nodo;
+   // Crear un nuevo nodo
+   List<T>* nuevoNodo = new List<T>{e, nullptr};
+
+   // Si la lista está vacía, el nuevo nodo se convierte en el primer elemento
+   if (lst.sig == nullptr) {
+       lst.sig = nuevoNodo;
+   } else {
+       // Si la lista no está vacía, encontrar el último nodo y agregar el nuevo nodo al final
+       List<T>* ultimo = &lst;
+       while (ultimo->sig != nullptr) {
+           ultimo = ultimo->sig;
+       }
+       ultimo->sig = nuevoNodo;
+   }
+
+   // Retorna la dirección de memoria del elemento que se agregó
+   return &(nuevoNodo->info);
 }
 
 template<typename T>
 T* listAddFirst(List<T>& lst,T e)
 {
-   return NULL;
+   List<T>* nodo = _createNode<T>(e);
+   List<T>* aux = lst;
+   lst = nodo;
+   lst -> sig = aux;
+   return lst;
 }
 
 template<typename T,typename K>
 T listRemove(List<T>& lst,K k,int cmpTK(T,K))
 {
-   T t;
-   return t;
+   List<T>* aux = lst;
+   List<T>* ant = NULL;
+      T t;
+      while(aux->sig != NULL)
+      {
+         if(cmpTK(aux->info,k)==0)
+         {
+            t = aux->info;
+            if(lst == aux)
+            {
+               lst = aux->sig;
+            }
+            else
+            {
+               ant->sig = aux->sig;
+            }
+            delete aux;
+            return t;
+         }
+         ant = aux;
+         aux = aux->sig;
+      }
+      t = aux->info;
+      delete aux;
+      ant->sig = NULL;
+      return t;
 }
 
 template<typename T>
 T listRemoveFirst(List<T>& lst)
 {
-   T t;
+   List<T>* aux = lst->sig;
+   T t = lst->info;
+
+   delete lst;
+   lst = aux;
+
    return t;
 }
 
 template<typename T,typename K>
 T* listFind(List<T> lst,K k,int cmpTK(T,K))
 {
-   return NULL;
+   List<T>* aux = lst;
+   while( aux!=nullptr )
+   {
+      if( cmpTK(aux->info,k)==0 )
+      {
+         return aux;
+      }
+      aux = aux->sig;
+   }
+   return nullptr;
 }
 
 template<typename T>
 bool listIsEmpty(List<T> lst)
 {
-   return true;
+   if( lst==NULL )
+   {
+      return true;
+   }
+   return false;
 }
 
 template<typename T>
 int listSize(List<T> lst)
 {
-   return 0;
+   int cont = 0;
+   while( lst!=nullptr )
+   {
+      cont++;
+   }
+   return cont;
 }
 
 template<typename T>
 void listFree(List<T>& lst)
 {
+   lst = NULL;
 }
 
 template<typename T>
 T* listDiscover(List<T>& lst,T t,int cmpTT)
 {
-   return NULL;
+   List<T>* nuevaLista = &lst;
+
+   while( nuevaLista->sig!=nullptr&&cmpTT(nuevaLista->info,t) )
+   {
+      if( cmpTT(nuevaLista->info,t)==0 )
+      {
+         return *(nuevaLista->info);
+      }
+   }
+
+   // Si no se encontró el elemento, agregarlo al final de la lista
+   T* direccion = listAdd(lst,t);
+   lst = nuevaLista;
+   return direccion;
 }
 
 template<typename T>
 T* listOrderedInsert(List<T>& lst,T t,int cmpTT(T,T))
 {
-   return NULL;
+   // Crear un nuevo nodo con e
+   List<T>* nuevoNodo = list<T>();
+   nuevoNodo.info = t;
+
+   // Si la lista está vacía o el nuevo elemento va adelante del otro
+   if( lst==NULL||cmpTT(t,lst->info)<0 )
+   {
+      // El nuevo nodo se convierte en el nuevo primer nodo y apunta al antiguo primer nodo
+      nuevoNodo->sig = lst;
+      lst = nuevoNodo;
+      return lst; // Retorna la dirección del nuevo nodo
+   }
+
+   // Si la lista no está vacía y el nuevo elemento es mayor o igual al primer elemento de la lista
+   // Buscar la posición de inserción en la lista
+   List<T>* aux = lst;
+   while( aux->sig!=NULL&&cmpTT(t,aux->sig->info)>=0 )
+   {
+      aux = aux->sig;
+   }
+
+   // Insertar el nuevo nodo después del último nodo menor que el nuevo elemento
+   nuevoNodo->sig = aux->sig;
+   aux->sig = nuevoNodo;
+   // Retorna la dirección del nuevo nodo
+   return nuevoNodo;
 }
 
 template<typename T>
 void listSort(List<T>& lst,int cmpTT(T,T))
 {
+   if( lst==NULL||lst->sig==NULL )
+   {
+      // Si la lista está vacía o tiene un solo elemento, ya está ordenada
+      return;
+   }
+   bool loIntercambia = true;
+   List<T>* ultimo = NULL;
+
+   while( loIntercambia )
+   {
+      loIntercambia = false;
+      List<T>* actual = lst;
+
+      while( actual->sig!=ultimo )
+      {
+         if( cmpTT(actual->info,actual->sig->info)>0 )
+         {
+            // Intercambiar los datos de los nodos
+            T temp = actual->info;
+            actual->info = actual->sig->info;
+            actual->sig->info = temp;
+            loIntercambia = true;
+         }
+         actual = actual->sig;
+      }
+      ultimo = actual;
+   }
 }
 
 template<typename T>
 void listReset(List<T>& lst)
 {
+
 }
 
 template<typename T>
 bool listHasNext(List<T> lst)
 {
-   return true;
+   if(lst->sig != NULL){
+      return true;
+   }
+   return false;
 }
 
 template<typename T>
 T* listNext(List<T>& lst)
 {
-   return NULL;
+   return *(lst->sig);
 }
 
 template<typename T>
 T* listNext(List<T>& lst,bool& endOfList)
 {
-   T* t;
-   return t;
+   if(lst->sig == NULL){
+      endOfList = true;
+   }
+   if(lst->sig != NULL && endOfList == false){
+      return *(lst->sig);
+   }
+}
+
+
+template<typename T>
+void mostrarLista(const List<T>& lst) {
+    const List<T>* actual = &lst;
+
+    while (actual != nullptr) {
+        std::cout << actual->info << " ";
+        actual = actual->sig;
+    }
+
+    std::cout << std::endl;
 }
 
 #endif

@@ -1,0 +1,131 @@
+#ifndef _MAIN
+#define _MAIN
+
+#include <iostream>
+#include "biblioteca/funciones/strings.hpp"
+#include "biblioteca/funciones/tokens.hpp"
+#include "biblioteca/funciones/files.hpp"
+#include "biblioteca/tads/parte2/Array.hpp"
+#include "biblioteca/tads/parte2/Map.hpp"
+#include "biblioteca/tads/parte2/List.hpp"
+#include "biblioteca/tads/parte2/Stack.hpp"
+#include "biblioteca/tads/parte2/Queue.hpp"
+#include "biblioteca/tads/parte1/Coll.hpp"
+#include "biblioteca/tads/huffman/BitWriter.hpp"
+#include "biblioteca/tads/huffman/BitReader.hpp"
+#include "biblioteca/tads/parte1/MultidimColl.hpp"
+
+#include "principal.hpp"
+
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+
+void listadoPorTipoContri(FILE* fReclamo, int& tipoContriBusco){
+   cout<<"Listado para contribuyente Tipo: "<<tipoContriBusco<<endl;
+
+   FILE* fCont = fopen("CONTRIBUYENTE.dat","r+b");
+   while(!feof(fReclamo)){
+         Reclamo r = read<Reclamo>(fReclamo);            // leo el reclamo
+         int pos = busquedaBinaria(fCont,r.idContrib); //Busco la pos del contribuyente del reclamo leido
+
+         Fecha hoy = getDate();                         //obtengo la fecha de hoy
+
+
+         if(pos>= 0 && reclamoMasTresMeses(r.fechaReclamo,hoy)){  //Si la pos existe Y el reclamo tiene mas de 3 meses abierto
+
+            seek<Contribuyente>(fCont, pos);          //Me desplazo hasta la pos del contribuyente
+            Contribuyente c = read<Contribuyente>(fCont);   //Leo el contribuyente
+
+            if(c.idTipoContrib == tipoContriBusco){      //Si es del tipo que busco
+               cout<< reclamoToString(r)<<endl;          //Imprimo el reclamo que lleva mas de 3 meses
+            }
+
+         }
+
+      }
+   fclose(fCont);                         //Cierro el archivo contribuyentes
+   fseek(fReclamo, 0, SEEK_SET);          //Una vez leido todos los reclamos vuelvo al inicio del archivo
+   tipoContriBusco++;//Paso al otro tipo de Contribuyente;
+}
+
+
+int main(){
+
+   FILE* fReclamo = fopen("RECLAMO.DAT","r+b");
+
+   int tipoContriBusco = 1;
+   listadoPorTipoContri(fReclamo,tipoContriBusco);
+   listadoPorTipoContri(fReclamo,tipoContriBusco);
+
+
+   return 0;
+}
+#endif
+
+
+//   Array<int> a = array<int>();
+//   arrayAdd<int>(a,2);
+//   arrayAdd<int>(a,1);
+//   arrayAdd<int>(a,3);
+//   // ordeno
+//   arraySort<int>(a,cmpInt);
+//
+//   for(int i=0; i<arraySize<int>(a); i++)
+//   {
+//    int* s = arrayGet<int>(a,i);
+//    // SALIDA: Pablo, Pedro, Juan
+//    cout << *s << endl;
+//   }
+
+//     Coll<string> collection = coll<string>();
+//     collection.token = "Star|Wars|Nueva|Esperanza";
+//     collAdd<string>(collection,"Lucas",stringToString);
+//     collAdd<string>(collection,"1977",stringToString);
+//     string fill = "Filloni";
+//     collSetAt(collection,fill , 4, stringToString);
+//
+//     cout<<collection.token<<endl;
+//     bool iterador = false;
+//     while(!iterador){
+//        string v = collNext<string>(collection,iterador,stringToString);
+//        cout<<v<<endl;
+//     }
+//     collReset<string>(collection);
+//     string busco = "Esperanza";
+//     int result = collFind(collection, string(busco), cmpString, stringToString);
+//     if (result >= 0) {
+//        cout << "contiene: " << busco << endl;
+//     } else {
+//        cout << "No lo contiene" << endl;
+//     }
+//     collSort(collection,cmpString, stringToString,stringToString);
+//
+//     cout<<collection.token<<endl;
+
+//     FILE* f = fopen("JUAN.x","w+b");
+//     write<short>(f,1234);
+//     write<short>(f,4321);
+//     write<short>(f,-9876);
+//     write<short>(f,231);
+//     write<short>(f,3123);
+//     write<short>(f,34);
+//
+//     fclose(f);
+
+//    FILE* f = fopen("JUAN.x","r+b");
+//     seek<short>(f,0);
+//
+//
+//     for( int i=fileSize<short>(f)-1; i>=0; i-- )
+//     {
+//      seek<short>(f,i);
+//      // numero de registro apuntado por el indicador de posicion
+//      int pos = filePos<short>(f);
+//      short s = read<short>(f);
+//      cout << "Registro Nro. " << pos << "," << s << endl;
+//     }
+//     cout<<"En el archivo hay: "<<fileSize<short>(f)<<" Elementos"<<endl;
+//     fclose(f);
+//}
+

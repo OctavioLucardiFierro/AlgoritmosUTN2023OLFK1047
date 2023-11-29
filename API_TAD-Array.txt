@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include "../funciones/arrays.hpp"
+#include "../../funciones/arrays.hpp"
 
 
 using namespace std;
@@ -100,4 +100,31 @@ void arraySort(Array<T>& a,int cmpTT(T,T))
    sort<T>(a.a,a.len,cmpTT);
 }
 
+template <typename T>
+void mostrar(string nom,Array<T> a)
+{
+   cout << nom<<":[";
+   int n = arraySize<T>(a);
+   for(int i=0;i<n;i++)
+   {
+      T* t = arrayGet<T>(a,i);
+      string x = (i<n-1)?",":"";
+      cout << *t ;
+      cout << x;
+   }
+   cout << "]"<<endl;
+}
+
+template <typename T>
+void arrayCopy(Array<T>& a, Array<T> b)
+{
+   arrayRemoveAll<T>(a);
+   for( int i = 0; i<arraySize<T>(b); i++ )
+   {
+      T* t = arrayGet<T>(b,i);
+      arrayAdd<T>(a,*t);
+   }
+}
+
 #endif
+

@@ -1,0 +1,124 @@
+#include <iostream>
+#include "biblioteca/funciones/strings.hpp"
+#include "biblioteca/funciones/tokens.hpp"
+#include "biblioteca/funciones/files.hpp"
+#include "biblioteca/tads/parte2/Array.hpp"
+#include "biblioteca/tads/parte2/Map.hpp"
+#include "biblioteca/tads/parte2/List.hpp"
+#include "biblioteca/tads/parte2/Stack.hpp"
+#include "biblioteca/tads/parte2/Queue.hpp"
+#include "biblioteca/tads/parte1/Coll.hpp"
+#include "biblioteca/tads/huffman/BitWriter.hpp"
+#include "biblioteca/tads/huffman/BitReader.hpp"
+#include "biblioteca/tads/parte1/MultidimColl.hpp"
+
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+
+using namespace std;
+
+template<typename T>
+void MostrarNodo(Node<T>* temp){
+   while (temp != nullptr)
+          {
+              std::cout << temp->info << " ";
+              temp = temp->sig;
+          }
+          std::cout << std::endl;
+}
+
+struct contReclamo{
+  int tipoReclamo;
+  int tipoContribucion;
+  int cantidad;
+};
+
+
+struct Fecha{
+   int ano;
+   int mes;
+};
+
+string fechaToString(Fecha x)
+{
+   char sep = 1;
+   string sAno=to_string(x.ano);
+   string sMes=to_string(x.mes);
+   return sAno+sep+sMes;
+}
+
+Fecha getDate()
+{
+    // fecha actual expresada en segundos
+    int dia;
+    int mes;
+    int anio;
+    Fecha f;
+    time_t timestamp;
+    time(&timestamp);
+    // separo la fecha actual en atributos
+    struct tm* fechaActual = localtime(&timestamp);
+    dia = fechaActual->tm_mday;
+    mes = fechaActual->tm_mon+1;
+    anio = fechaActual->tm_year+1900;
+    f.ano = anio;
+    f.mes = mes;
+    f.ano = dia;
+    return f;
+}
+
+
+struct Contribuyente
+{
+   int idContrib; // orden
+   int dni;
+   char nomb[50];
+   char dir[255];
+   int idTipoContrib;
+};
+
+struct Reclamo
+{
+   int idRecl;
+   int idContrib;
+   int idTipoRecl;
+   Fecha fechaReclamo;
+   char observ[255];
+   bool reclamoCerrado;
+   Fecha fechaCierre;
+   char resolucion[255];
+};
+
+struct TipoReclamo
+{
+   int idTipoRecl;
+   char descrip[50];
+};
+
+void puntoUno(){
+
+}
+
+int busquedaBinaria(FILE* f, int dato){
+   return 0;
+}
+
+bool reclamoMasTresMeses(Fecha reclamo, Fecha hoy){
+   return true;
+}
+string reclamoToString(Reclamo x)
+{
+   char sep = 2;
+   string sIdRecl=to_string(x.idRecl);
+   string sIdContrib=to_string(x.idContrib);
+   string sIdTipoRecl=to_string(x.idTipoRecl);
+   string sFechaReclamo=fechaToString(x.fechaReclamo);
+   string sObserv=x.observ;
+   string sReclamoCerrado=to_string(x.reclamoCerrado);
+   string sFechaCierre=fechaToString(x.fechaCierre);
+   string sResolucion=x.resolucion;
+   return sIdRecl+sep+sIdContrib+sep+sIdTipoRecl+sep+sFechaReclamo+sep+sObserv+sep+sReclamoCerrado+sep+sFechaCierre+sep+sResolucion;
+}
+
+
